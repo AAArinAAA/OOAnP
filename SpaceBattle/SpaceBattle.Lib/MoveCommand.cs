@@ -1,11 +1,5 @@
 namespace SpaceBattle.Lib;
 
-public interface IMovable
-{
-    public int[] Position { get; set; }
-    public int[] Velocity { get; }
-}
-
 public class MoveCommand : ICommand
 {
     private readonly IMovable movable;
