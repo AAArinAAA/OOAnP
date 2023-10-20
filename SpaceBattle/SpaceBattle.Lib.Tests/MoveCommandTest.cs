@@ -1,6 +1,5 @@
 using Moq;
 
-
 namespace SpaceBattle.Lib.Tests;
 public class MoveTest
 {
@@ -10,62 +9,63 @@ public class MoveTest
         var movable = new Mock<IMovable>();
         movable.SetupGet(m => m.Position).Returns(new Vector(12, 5)).Verifiable();
 
-        movable.SetupGet(m => m.Velocity).Returns(new Vector(-7, 3)).Verifiable();
+        movable.SetupGet(m => m.Velocity).Returns(new Vector(-5, 3)).Verifiable();
 
         var move_command = new MoveCommand(movable.Object);
 
-        b.action();
+        move_command.Execute();
 
-        movable.VerifySet(m => m.Position = new Vector(5, 8));
+        movable.VerifySet(m => m.Position = new Vector(7, 8));
+        movable.VerifyAll();
     }
 
     [Fact]
     public void SetPosErr()
     {
         // Arrange
-        var a = new Mock<IMovable>();
-        a.SetupGet(m => m.Position).Throws(new Exception());
+        var movable = new Mock<IMovable>();
+        movable.SetupGet(m => m.Position).Throws(new System.Exception());
 
-        a.SetupGet(m => m.Velocity).Returns(new Vector(-7, 3)).Verifiable();
+        movable.SetupGet(m => m.Velocity).Returns(new Vector(-7, 3)).Verifiable();
 
-        var b = new MoveCommand(a.Object);
+        var move_command = new MoveCommand(movable.Object);
 
         // Act
         // Assert
-        Assert.Throws<Exception>(() => b.action());
+        Assert.Throws<System.Exception>(() => move_command.Execute());
     }
 
     [Fact]
     public void GetSpeedErr()
     {
         // Arrange
-        var a = new Mock<IMovable>();
-        a.SetupGet(m => m.position).Returns(new Vector(12, 5)).Verifiable();
+        var movable = new Mock<IMovable>();
+        movable.SetupGet(m => m.Position).Returns(new Vector(12, 5)).Verifiable();
 
-        a.SetupGet(m => m.velocity).Throws(new Exception());
+        movable.SetupGet(m => m.Velocity).Throws(new System.Exception());
 
-        var b = new MoveCommand(a.Object);
+        var move_command = new MoveCommand(movable.Object);
 
         // Act
         // Assert
-        Assert.Throws<Exception>(() => b.action());
+        Assert.Throws<System.Exception>(() => move_command.Execute());
     }
 
     [Fact]
     public void GetPosErr()
     {
         // Arrange
-        var a = new Mock<IMovable>();
-        a.SetupGet(m => m.position).Returns(new Vector(12, 5)).Verifiable();
+        var movable = new Mock<IMovable>();
+        movable.SetupGet(m => m.Position).Returns(new Vector(12, 5)).Verifiable();
 
-        a.SetupGet(m => m.velocity).Returns(new Vector(-7, 3)).Verifiable();
+        movable.SetupGet(m => m.Velocity).Returns(new Vector(-7, 3)).Verifiable();
 
-        a.SetupSet(m => m.position = It.IsAny<Vector>()).Throws(new Exception());
+        movable.SetupSet(m => m.Position = It.IsAny<Vector>()).Throws(new System.Exception());
 
-        var b = new MoveCommand(a.Object);
+        var move_command = new MoveCommand(movable.Object);
 
         // Act
         // Assert
-        Assert.Throws<Exception>(() => b.action());
+        Assert.Throws<System.Exception>(() => move_command.Execute());
     }
 }

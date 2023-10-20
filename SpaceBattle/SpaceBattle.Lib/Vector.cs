@@ -15,6 +15,7 @@ public class Vector
     public static Vector operator +(Vector a, Vector b)
     {
         a.coordinates[0] += b.coordinates[0];
+        
         return a;
     }
 

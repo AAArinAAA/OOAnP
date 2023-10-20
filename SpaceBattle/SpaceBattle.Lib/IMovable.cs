@@ -1,6 +1,6 @@
 namespace SpaceBattle.Lib;
 public interface IMovable
 {
-    public int[] Position { get; set; }
-    public int[] Velocity { get; }
+    public Vector Position { get; set; }
+    public Vector Velocity { get; }
 }
