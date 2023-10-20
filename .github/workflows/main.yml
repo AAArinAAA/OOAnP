@@ -1,0 +1,23 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main"]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore XUnit.Coverlet.Collector/ && dotnet restore XUnit.Coverlet.MSBuild/
+    - name: Build
+      run: cd XUnit.Coverlet.MSBuild/ && dotnet build --no-restore
+    - name: Test
+      run: cd XUnit.Coverlet.Collector/ && dotnet test --collect:"XPlat Code Coverage"
