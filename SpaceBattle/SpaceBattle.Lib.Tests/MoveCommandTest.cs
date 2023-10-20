@@ -22,23 +22,19 @@ public class MoveTest
     [Fact]
     public void SetPosErr()
     {
-        // Arrange
         var movable = new Mock<IMovable>();
         movable.SetupGet(m => m.Position).Throws(new System.Exception());
 
-        movable.SetupGet(m => m.Velocity).Returns(new Vector(-7, 3)).Verifiable();
+        movable.SetupGet(m => m.Velocity).Returns(new Vector(-5, 3)).Verifiable();
 
         var move_command = new MoveCommand(movable.Object);
 
-        // Act
-        // Assert
         Assert.Throws<System.Exception>(() => move_command.Execute());
     }
 
     [Fact]
     public void GetSpeedErr()
     {
-        // Arrange
         var movable = new Mock<IMovable>();
         movable.SetupGet(m => m.Position).Returns(new Vector(12, 5)).Verifiable();
 
@@ -46,26 +42,21 @@ public class MoveTest
 
         var move_command = new MoveCommand(movable.Object);
 
-        // Act
-        // Assert
         Assert.Throws<System.Exception>(() => move_command.Execute());
     }
 
     [Fact]
     public void GetPosErr()
     {
-        // Arrange
         var movable = new Mock<IMovable>();
         movable.SetupGet(m => m.Position).Returns(new Vector(12, 5)).Verifiable();
 
-        movable.SetupGet(m => m.Velocity).Returns(new Vector(-7, 3)).Verifiable();
+        movable.SetupGet(m => m.Velocity).Returns(new Vector(-5, 3)).Verifiable();
 
         movable.SetupSet(m => m.Position = It.IsAny<Vector>()).Throws(new System.Exception());
 
         var move_command = new MoveCommand(movable.Object);
 
-        // Act
-        // Assert
         Assert.Throws<System.Exception>(() => move_command.Execute());
     }
 }
