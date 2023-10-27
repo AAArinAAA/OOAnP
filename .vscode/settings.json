@@ -1,0 +1,5 @@
+{
+    "cucumberautocomplete.steps": [
+        "**/SpaceBattle.Lib.Tests/StepDefinitions/*.cs"
+    ]
+}

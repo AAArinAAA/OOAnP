@@ -7,15 +7,16 @@ public class MoveTest
     public void MoveGood()
     {
         var movable = new Mock<IMovable>();
-        movable.SetupGet(m => m.Position).Returns(new Vector(12, 5)).Verifiable();
+        
+        movable.SetupGet(movable => movable.Position).Returns(new Vector(12, 5)).Verifiable();
 
-        movable.SetupGet(m => m.Velocity).Returns(new Vector(-5, 3)).Verifiable();
+        movable.SetupGet(movable => movable.Velocity).Returns(new Vector(-5, 3)).Verifiable();
 
         var move_command = new MoveCommand(movable.Object);
 
         move_command.Execute();
 
-        movable.VerifySet(m => m.Position = new Vector(7, 8));
+        movable.VerifySet(movable => movable.Position = new Vector(7, 8), Times.Once);
         movable.VerifyAll();
     }
 
