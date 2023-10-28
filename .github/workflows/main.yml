@@ -18,8 +18,7 @@ jobs:
       - name: Debugging
         run: cd SpaceBattle
  
-      - name: Restore dependencies
-        run: dotnet restore
+
 
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
