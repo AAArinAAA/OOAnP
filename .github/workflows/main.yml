@@ -16,7 +16,7 @@ jobs:
           dotnet-version: 7.0.x
 
       - name: Debugging
-        run: ls
+        run: cd SpaceBattle
  
       - name: Restore dependencies
         run: dotnet restore
