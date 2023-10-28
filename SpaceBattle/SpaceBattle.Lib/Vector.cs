@@ -18,13 +18,14 @@ public class Vector
     public static Vector operator +(Vector a, Vector b)
     {
         a._coordinates[0] += b._coordinates[0];
-
+        a._coordinates[1] += b._coordinates[1];
         return a;
     }
 
     public static Vector operator -(Vector a, Vector b)
     {
         a._coordinates[0] -= b._coordinates[0];
+        a._coordinates[1] -= b._coordinates[1];
 
         return a;
     }

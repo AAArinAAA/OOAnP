@@ -13,9 +13,9 @@ public class Move
 
     public Move()
     {
-    _movable = new Mock<IMovable>();
+        _movable = new Mock<IMovable>();
 
-    commandExecutionLambda = () => { };
+        commandExecutionLambda = () => { };
 
     }
 
@@ -29,6 +29,24 @@ public class Move
     public void ДопустимИмеетМгновеннуюСкорость(int p0, int p1)
     {
         _movable.SetupGet(m => m.Velocity).Returns(new Vector ( p0, p1 ));
+    }
+    
+    [Given(@"скорость корабля определить невозможно")]
+    public void ДопустимСкоростьКорабляОпределитьНевозможно()
+    {
+        _movable.SetupGet(m => m.Velocity).Throws(new System.Exception());
+    }
+
+    [Given(@"изменить положение в пространстве космического корабля невозможно")]
+    public void ДопустимИзменитьПоложениеВПространствеКосмическогоКорабляНевозможно()
+    {
+        _movable.SetupSet(m => m.Position = It.IsAny<Vector>()).Throws(new System.Exception());
+    }
+
+    [Given(@"космический корабль, положение в пространстве которого невозможно определить")]
+    public void ДопустимКосмическийКорабльПоложениеВПространствеКоторогоНевозможноОпределить()
+    {
+        _movable.SetupGet(m => m.Position).Throws<Exception>();
     }
     
     [When(@"происходит прямолинейное равномерное движение без деформации")]
@@ -45,28 +63,9 @@ public class Move
         _movable.VerifySet(_movable => _movable.Position = new Vector(p0, p1), Times.Once);
     }
 
-    [Given(@"космический корабль, положение в пространстве которого невозможно определить")]
-    public void ДопустимКосмическийКорабльПоложениеВПространствеКоторогоНевозможноОпределить()
-    {
-        _movable.SetupGet(m => m.Position).Throws<Exception>();
-    }
-
     [Then(@"возникает ошибка Exception")]
     public void ТоВозникаетОшибкаException()
     {
         Assert.Throws<Exception>(() => commandExecutionLambda());
-    }
-    
-    [Given(@"скорость корабля определить невозможно")]
-    public void ДопустимСкоростьКорабляОпределитьНевозможно()
-    {
-        _movable.SetupGet(m => m.Velocity).Throws(new System.Exception());
-    }
-
-    [Given(@"изменить положение в пространстве космического корабля невозможно")]
-    public void ДопустимИзменитьПоложениеВПространствеКосмическогоКорабляНевозможно()
-    {
-        _movable.SetupSet(m => m.Position = It.IsAny<Vector>()).Throws(new System.Exception());
-
     }
 }
