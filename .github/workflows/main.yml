@@ -17,6 +17,9 @@ jobs:
 
       - name: Debugging
         run: cd SpaceBattle
+
+      - name: Debugging
+        run: ls     
  
       - name: Restore dependencies
         run: dotnet restore
