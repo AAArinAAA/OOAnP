@@ -16,7 +16,7 @@ jobs:
           dotnet-version: 7.0.x
 
       - name: Debugging
-        run: cd SpaceBattle
+        run: cd SpaceBattle/
 
       - name: Debugging
         run: ls     
