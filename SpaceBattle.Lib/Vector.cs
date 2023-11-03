@@ -17,35 +17,32 @@ public class Vector
 
     public static Vector operator +(Vector a, Vector b)
     {
-        a._coordinates[0] += b._coordinates[0];
-        a._coordinates[1] += b._coordinates[1];
+        var i = 0;
+        var size = a.Size;
+        while (i < size)
+        {
+            a._coordinates[i] += b._coordinates[i];
+            i++;
+        }
+
         return a;
     }
 
     public static Vector operator -(Vector a, Vector b)
     {
-        a._coordinates[0] -= b._coordinates[0];
-        a._coordinates[1] -= b._coordinates[1];
+        var i = 0;
+        var size = a.Size;
+        while (i < size)
+        {
+            a._coordinates[i] -= b._coordinates[i];
+            i++;
+        }
 
         return a;
     }
     public static bool operator ==(Vector a, Vector b)
     {
-        var result = true;
-        if (a.Size != b.Size)
-        {
-            result = false;
-        }
-
-        for (var i = 0; i < a.Size; i++)
-        {
-            if (a._coordinates[i] == b._coordinates[i])
-            {
-                result = true;
-            }
-        }
-
-        return result;
+        return b.Equals(a);
     }
 
     public static bool operator !=(Vector a, Vector b)

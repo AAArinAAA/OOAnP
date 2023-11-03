@@ -2,6 +2,11 @@ name: Main
 
 on:
   push:
+    branches: 'main'
+  
+  pull_request:
+    branches: 'main'
+
 
 jobs:
   build:
@@ -23,3 +28,7 @@ jobs:
 
       - name: Test
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+
+      - name: Checkstyle
+        run: dotnet format --verify-no-changes
+        
