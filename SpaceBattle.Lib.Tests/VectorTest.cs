@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace SpaceBattle.Lib.Test
 {
@@ -15,7 +15,7 @@ namespace SpaceBattle.Lib.Test
         {
             Vector a = new(0, 1);
             Vector b = new(2, 3);
-            Assert.Equal(a+b, new Vector(2,4));
+            Assert.Equal(a + b, new Vector(2, 4));
         }
 
         [Fact]
@@ -26,13 +26,13 @@ namespace SpaceBattle.Lib.Test
 
             Assert.Throws<ArgumentException>(() => a + b);
         }
-    
+
         [Fact]
         public void DivSameSize()
         {
             Vector a = new(0, 1);
             Vector b = new(2, 3);
-            Assert.Equal(a-b, new Vector(-2,-2));
+            Assert.Equal(a - b, new Vector(-2, -2));
         }
         [Fact]
         public void DivDifferentSize()
@@ -46,8 +46,8 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void CompareOneSizeVectorsWithDifferentCoords()
         {
-            Vector a= new (0, 1);
-            Vector b= new (0, 2);
+            Vector a = new(0, 1);
+            Vector b = new(0, 2);
 
             Assert.False(a == b);
         }
@@ -55,8 +55,8 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void CompareOneSizeVectorsWithSameCoords()
         {
-            Vector a= new (0, 1);
-            Vector b= new (0, 1);
+            Vector a = new(0, 1);
+            Vector b = new(0, 1);
 
             Assert.True(a == b);
         }
@@ -64,8 +64,8 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void CompareDifferentSizeVectors()
         {
-            Vector a= new (0, 1, 2);
-            Vector b= new (0, 2);
+            Vector a = new(0, 1, 2);
+            Vector b = new(0, 2);
 
             Assert.Throws<ArgumentException>(() => a == b);
         }
@@ -73,8 +73,8 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void NotCompareOneSizeVectorsWithSameCoords()
         {
-            Vector a= new (0, 1);
-            Vector b= new (0, 1);
+            Vector a = new(0, 1);
+            Vector b = new(0, 1);
 
             Assert.False(a != b);
         }
@@ -82,8 +82,8 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void NotCompareOneSizeVectorsWithDifferentCoords()
         {
-            Vector a= new (0, 1);
-            Vector b= new (0, 2);
+            Vector a = new(0, 1);
+            Vector b = new(0, 2);
 
             Assert.True(a != b);
         }
@@ -91,8 +91,8 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void NotCompareDifferentSizeVectors()
         {
-            Vector a= new (0, 1, 2);
-            Vector b= new (0, 2);
+            Vector a = new(0, 1, 2);
+            Vector b = new(0, 2);
 
             Assert.Throws<ArgumentException>(() => a != b);
         }
@@ -100,8 +100,8 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void VGetHashCode()
         {
-            Vector a= new (0, 1);
-            var code=a.GetHashCode();
+            Vector a = new(0, 1);
+            var code = a.GetHashCode();
             Assert.Equal(code, a.GetHashCode());
         }
     }

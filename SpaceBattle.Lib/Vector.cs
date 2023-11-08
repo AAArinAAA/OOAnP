@@ -17,11 +17,11 @@ public class Vector
 
     public static Vector operator +(Vector a, Vector b)
     {
-        if (a.Size!=b.Size)
+        if (a.Size != b.Size)
         {
             throw new System.ArgumentException();
         }
-        
+
         var i = 0;
         var size = a.Size;
         while (i < size)
@@ -35,11 +35,11 @@ public class Vector
 
     public static Vector operator -(Vector a, Vector b)
     {
-        if (a.Size!=b.Size)
+        if (a.Size != b.Size)
         {
             throw new System.ArgumentException();
         }
-        
+
         var i = 0;
         var size = a.Size;
         while (i < size)
@@ -52,7 +52,7 @@ public class Vector
     }
     public static bool operator ==(Vector a, Vector b)
     {
-        if (a.Size!=b.Size)
+        if (a.Size != b.Size)
         {
             throw new System.ArgumentException();
         }
@@ -62,11 +62,11 @@ public class Vector
 
     public static bool operator !=(Vector a, Vector b)
     {
-        if (a.Size!=b.Size)
+        if (a.Size != b.Size)
         {
             throw new System.ArgumentException();
         }
-        
+
         return !(a == b);
     }
 
