@@ -9,7 +9,7 @@ public class Vector
     {
         if (coordinates.Length == 0)
         {
-            throw new ArgumentException("not good, bro...");
+            throw new ArgumentException();
         }
 
         _coordinates = coordinates;
@@ -17,6 +17,11 @@ public class Vector
 
     public static Vector operator +(Vector a, Vector b)
     {
+        if (a.Size!=b.Size)
+        {
+            throw new System.ArgumentException();
+        }
+        
         var i = 0;
         var size = a.Size;
         while (i < size)
@@ -30,6 +35,11 @@ public class Vector
 
     public static Vector operator -(Vector a, Vector b)
     {
+        if (a.Size!=b.Size)
+        {
+            throw new System.ArgumentException();
+        }
+        
         var i = 0;
         var size = a.Size;
         while (i < size)
@@ -42,17 +52,27 @@ public class Vector
     }
     public static bool operator ==(Vector a, Vector b)
     {
+        if (a.Size!=b.Size)
+        {
+            throw new System.ArgumentException();
+        }
+
         return b.Equals(a);
     }
 
     public static bool operator !=(Vector a, Vector b)
     {
+        if (a.Size!=b.Size)
+        {
+            throw new System.ArgumentException();
+        }
+        
         return !(a == b);
     }
 
     public override int GetHashCode()
     {
-        throw new NotImplementedException();
+        return 0;
     }
 
     public override bool Equals(object? obj)
