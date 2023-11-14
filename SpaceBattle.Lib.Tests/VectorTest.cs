@@ -104,5 +104,15 @@ namespace SpaceBattle.Lib.Test
             var code = a.GetHashCode();
             Assert.Equal(code, a.GetHashCode());
         }
+
+        [Fact]
+        public void EqualTwoDiffThings()
+        {
+            Vector a= new (0, 1);
+            var b= new int[] {0, 1};
+            var Res= a.Equals(b);
+
+            Assert.Equal(a.Equals(b), Res);
+        }
     }
 }
