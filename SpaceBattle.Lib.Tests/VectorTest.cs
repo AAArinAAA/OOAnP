@@ -108,9 +108,9 @@ namespace SpaceBattle.Lib.Test
         [Fact]
         public void EqualTwoDiffThings()
         {
-            Vector a= new (0, 1);
-            var b= new int[] {0, 1};
-            var Res= a.Equals(b);
+            Vector a = new(0, 1);
+            var b = new int[] { 0, 1 };
+            var Res = a.Equals(b);
 
             Assert.Equal(a.Equals(b), Res);
         }
