@@ -26,23 +26,6 @@ public class Vector
 
     }
 
-    public static Vector operator -(Vector a, Vector b)
-    {
-        if (a.Size != b.Size)
-        {
-            throw new System.ArgumentException();
-        }
-
-        var i = 0;
-        var size = a.Size;
-        while (i < size)
-        {
-            a._coordinates[i] -= b._coordinates[i];
-            i++;
-        }
-
-        return a;
-    }
     public static bool operator ==(Vector a, Vector b)
     {
         if (a.Size != b.Size)
@@ -65,7 +48,7 @@ public class Vector
 
     public override int GetHashCode()
     {
-        return 0;
+        return _coordinates.GetHashCode();
     }
 
     public override bool Equals(object? obj)
