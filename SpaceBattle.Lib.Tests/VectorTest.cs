@@ -15,7 +15,7 @@ namespace SpaceBattle.Lib.Test
         {
             Vector a = new(0, 1);
             Vector b = new(2, 3);
-            Assert.Equal(a + b, new Vector(2, 4));
+            Assert.True(a + b == new Vector(2, 4));
         }
 
         [Fact]

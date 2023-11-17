@@ -22,15 +22,8 @@ public class Vector
             throw new System.ArgumentException();
         }
 
-        var i = 0;
-        var size = a.Size;
-        while (i < size)
-        {
-            a._coordinates[i] += b._coordinates[i];
-            i++;
-        }
+        return new Vector(a._coordinates.Zip(b._coordinates, (a, b) => a + b).ToArray());
 
-        return a;
     }
 
     public static Vector operator -(Vector a, Vector b)
