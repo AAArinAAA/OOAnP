@@ -2,76 +2,57 @@ namespace SpaceBattle.Lib;
 
 public class Vector
 {
-    public int[] coordinates;
-    private readonly int _size;
+    private readonly int[] _coordinates;
+    public int Size => _coordinates.Length;
 
-    public Vector(int a, int b)
+    public Vector(params int[] coordinates)
     {
-        coordinates[0] = a;
-        coordinates[1] = b;
-        _size = coordinates.Length;
+        if (coordinates.Length == 0)
+        {
+            throw new ArgumentException();
+        }
+
+        _coordinates = coordinates;
     }
 
     public static Vector operator +(Vector a, Vector b)
     {
-        a.coordinates[0] += b.coordinates[0];
-        
-        return a;
-    }
-
-     public static Vector operator -(Vector a, Vector b)
-    {
-        a.coordinates[0] -= b.coordinates[0];
-
-        return a;
-    }
-    public static bool operator == (Vector a, Vector b)
-    {
-        var result=true;
-        if (a._size != b._size) 
+        if (a.Size != b.Size)
         {
-            result = false;
+            throw new System.ArgumentException();
         }
 
-        for (var i = 0; i < a._size; i++)
-        {
-            if (a.coordinates[i] != b.coordinates[i]) 
-            {
-            }
+        return new Vector(a._coordinates.Zip(b._coordinates, (a, b) => a + b).ToArray());
 
-            result = true;
-        } 
-
-        return result;
     }
 
-    public static bool operator != (Vector a, Vector b)
+    public static bool operator ==(Vector a, Vector b)
     {
+        if (a.Size != b.Size)
+        {
+            throw new System.ArgumentException();
+        }
+
+        return b.Equals(a);
+    }
+
+    public static bool operator !=(Vector a, Vector b)
+    {
+        if (a.Size != b.Size)
+        {
+            throw new System.ArgumentException();
+        }
+
         return !(a == b);
-    }
-
-    public override string ToString()
-    {
-        return $"<{string.Join(", ", coordinates)}>";
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (ReferenceEquals(this, obj))
-        {
-            return true;
-        }
-
-        if (ReferenceEquals(obj, null))
-        {
-            return false;
-        }
-
-        throw new NotImplementedException();
     }
 
     public override int GetHashCode()
     {
-        throw new NotImplementedException();
+        return _coordinates.GetHashCode();
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Vector vector && _coordinates.SequenceEqual(vector._coordinates);
     }
 }
