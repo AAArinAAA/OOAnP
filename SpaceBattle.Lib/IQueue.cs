@@ -1,8 +1,8 @@
-namespace SpaceBattle.Lib
+﻿namespace SpaceBattle.Lib
 {
     public interface IQueue
     {
-        public object Enqueue(object[] args);
-        public object Dequeue();
+        void Enqueue(ICommand cmd);
+        ICommand Dequeue();
     }
 }
