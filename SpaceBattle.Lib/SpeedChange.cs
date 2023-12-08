@@ -4,7 +4,7 @@ public class SpeedChange : ICommand
 {
     private readonly IVelocityChangeable _vch;
 
-    public SpeedChange( IVelocityChangeable vch, Vector velocity)
+    public SpeedChange(IVelocityChangeable vch, Vector velocity)
     {
         _vch = vch;
         _vch.Velocity = velocity;
