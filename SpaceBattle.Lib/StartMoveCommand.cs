@@ -1,19 +1,20 @@
-﻿namespace SpaceBattle.Lib;
+﻿using Hwdtech;
 
-public class StartMoveCommand : ICommand
+namespace SpaceBattle.Lib
 {
-    private readonly IMoveCommandStartable _obj;
-
-    public StartMoveCommand(IMoveCommandStartable obj)
+    public class StartMoveCommand : ICommand
     {
-        _obj = obj;
-    }
-
-    public void Execute()
-    {
-        Hwdtech.IoC.Resolve<SpaceBattle.Lib.ICommand>("SpaceBattle.Lib.SpeedChange", _obj.UObject, _obj.Velocity);
-        var smth_cmd = Hwdtech.IoC.Resolve<SpaceBattle.Lib.ICommand>("SpaceBattle.Lib.Move", _obj.UObject);
-        _ = Hwdtech.IoC.Resolve<Queue<SpaceBattle.Lib.ICommand>>("SpaceBattle.Queue");
-        _obj.Queue.Enqueue(smth_cmd);
+        private readonly IMoveCommandStartable moveCommandStartable;
+        public StartMoveCommand(IMoveCommandStartable movableCommand)
+        {
+            moveCommandStartable = movableCommand;
+        }
+        public void Execute()
+        {
+            moveCommandStartable.property.ToList().ForEach(p => moveCommandStartable.target.SetProperty(p.Key, p.Value));
+            var command = IoC.Resolve<ICommand>("Game.Operation.Move", moveCommandStartable.target);
+            moveCommandStartable.target.SetProperty("command", command);
+            IoC.Resolve<IQueue>("Game.Queue").Enqueue(command);
+        }
     }
 }

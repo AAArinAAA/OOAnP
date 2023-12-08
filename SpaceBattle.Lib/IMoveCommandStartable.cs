@@ -2,8 +2,7 @@
 {
     public interface IMoveCommandStartable
     {
-        IUObject UObject { get; }
-        Vector Velocity { get; }
-        Queue<ICommand> Queue { get; }
+        public IUObject target { get; }
+        public Dictionary<string, object> property { get; }
     }
 }

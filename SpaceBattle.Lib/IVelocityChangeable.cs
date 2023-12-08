@@ -2,6 +2,6 @@
 
 public interface IVelocityChangeable
 {
-    public Vector Velocity { set; }
+    public Vector Velocity { get; set;}
     IUObject Obj { get; }
 }

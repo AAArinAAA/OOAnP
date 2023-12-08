@@ -2,17 +2,16 @@
 
 public class SpeedChange : ICommand
 {
-    private readonly IUObject _obj;
-    private readonly Vector _velocity;
+    private readonly IVelocityChangeable _vch;
 
-    public SpeedChange(object obj, Vector velocity)
+    public SpeedChange( IVelocityChangeable vch, Vector velocity)
     {
-        _obj = (IUObject)obj;
-        _velocity = velocity;
+        _vch = vch;
+        _vch.Velocity = velocity;
     }
 
     public void Execute()
     {
-        _obj.SetProperty("velocity", _velocity);
+        _vch.Obj.SetProperty("velocity", _vch.Velocity);
     }
 }
