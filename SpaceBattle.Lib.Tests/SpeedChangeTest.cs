@@ -34,18 +34,4 @@ public class SpeedChangeTests
         var cmd = new SpeedChange(m.Object, new Vector(2, 0));
         Assert.Throws<NotImplementedException>(cmd.Execute);
     }
-
-    [Fact]
-    public void Speed_Not_Changed_Without_Vel()
-    {
-        var m = new Mock<IVelocityChangeable>();
-        var o = new Mock<IUObject>();
-        m.SetupGet(m => m.Velocity).Throws(new NotImplementedException());
-        m.SetupGet(m => m.Obj).Returns(o.Object).Verifiable();
-
-        o.Setup(o => o.SetProperty("velocity", new Vector(2, 0))).Verifiable();
-
-        var cmd = new SpeedChange(m.Object, new Vector(2, 0));
-        Assert.Throws<NotImplementedException>(cmd.Execute);
-    }
 }
