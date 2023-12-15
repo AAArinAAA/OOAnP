@@ -32,6 +32,7 @@ jobs:
       - name: Checkstyle
         run: dotnet format --verify-no-changes
 
-      - name: Coverage and test
-        run: dotnet coverlet SpaceBattle.Lib.Tests/bin/Debug/net7.0/SpaceBattle.Lib.Tests.dll —target "dotnet" —targetargs "test —no-build" -f=opencover -o="coverage.xml"
-        
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
