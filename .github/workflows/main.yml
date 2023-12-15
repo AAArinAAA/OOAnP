@@ -26,13 +26,13 @@ jobs:
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
-      - name: Test
-        run:  dotnet test --collect:"XPlat Code Coverage"
-
       - name: Checkstyle
         run: dotnet format --verify-no-changes
 
-      - name: Upload coverage reports to Codecov
+      - name: Test
+        run: dotnet-coverage collect 'dotnet test' -f xml -o 'coverage.xml'
+
+      - name: Codecov
         uses: codecov/codecov-action@v3
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
