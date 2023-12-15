@@ -39,15 +39,17 @@ public class StartMoveCommandTests
     }
 
     [Fact]
-    public void Execute_RegistersTargetsAndPushesMovingCommand_WhenCalled()
+    public void Positive_Test()
     {
         var movingCommandMock = new Mock<Lib.ICommand>();
         var commandMock = new Mock<Lib.ICommand>();
         var queueMock = new Mock<IQueue>();
+        var injMock = new Mock<Lib.ICommand>();
 
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Operation.Move", (object[] args) => movingCommandMock.Object).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "command", (object[] args) => commandMock.Object).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Queue", (object[] args) => queueMock.Object).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Commands.Injectable", (object[] args) => injMock.Object).Execute();
 
         _startMoveCommand.Execute();
 
