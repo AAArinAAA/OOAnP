@@ -30,7 +30,7 @@ jobs:
         run: dotnet format --verify-no-changes
 
       - name: Test
-        run: dotnet-coverage collect 'dotnet test' -f xml -o 'coverage.xml'
+        run: dotnet test /p:CollectCoverage=true
 
       - name: Codecov
         uses: codecov/codecov-action@v3
