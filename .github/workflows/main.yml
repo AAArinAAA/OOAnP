@@ -30,20 +30,4 @@ jobs:
         run: dotnet format --verify-no-changes
 
       - name: Test
-        run: dotnet test /p:CollectCoverage=true
-
-      - name: Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-
-      - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml # optional
-          flags: unittests # optional
-          name: codecov-umbrella # optional
-          fail_ci_if_error: true # optional (default = false)
-          verbose: true # optional (default = false)
+        run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults /p:CoverletOutputFormat=cobertura
