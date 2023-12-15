@@ -32,5 +32,5 @@ jobs:
       - name: Test
         run: dotnet test /p:CollectCoverage=true /p:CoverletOutput=TestResults /p:CoverletOutputFormat=cobertura
 
-      - name: Test
+      - name: Test2
         run: dotnet test/p:CollectCoverage=true
