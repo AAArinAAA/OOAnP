@@ -390,6 +390,3 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
-
-
-xUnit.AssemblyHooks.cs
