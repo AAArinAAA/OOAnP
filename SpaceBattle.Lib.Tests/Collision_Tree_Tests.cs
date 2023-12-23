@@ -28,7 +28,7 @@ public class BuildTreeTests
     {
         var read = new Mock<IReadList>();
 
-        var path = "../test.txt";
+        var path = "../Txt_files/test.txt";
         var vectors = File.ReadAllLines(path).Select(line => line.Split().Select(int.Parse).ToArray()).ToList();
         
         read.Setup(i => i.ReadFile()).Returns(vectors);
