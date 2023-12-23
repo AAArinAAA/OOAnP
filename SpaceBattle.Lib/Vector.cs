@@ -2,7 +2,7 @@
 
 public class Vector
 {
-    public int[] _coordinates;
+    private readonly int[] _coordinates;
     public int Size => _coordinates.Length;
 
     public Vector(params int[] coordinates)
