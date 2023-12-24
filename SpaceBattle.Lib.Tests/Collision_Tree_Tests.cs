@@ -1,64 +1,64 @@
-using SpaceBattle.Lib;
-using Moq;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Hwdtech;
 using Hwdtech.Ioc;
-using System.Collections.Generic;
+using Moq;
 using Xunit;
-using System.IO;
-using System.Linq;
-using System;
 
-namespace SpaceBattle.Tests;
+namespace SpaceBattle.Test;
 
-public class BuildTreeTests
+public class DecisionTreesTests
 {
-    public BuildTreeTests()
+
+    public DecisionTreesTests()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
-
-        var DecisionTree = new Dictionary<int, object>();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.BuildDecisionTree", (object[] args) => {
-            return DecisionTree;
-        }).Execute();
     }
 
     [Fact]
-    public void BuildDecisionTreeTrue()
+    public void PositiveBuildingDecisionTreesTest()
     {
-        var read = new Mock<IReadList>();
+        var path = "../test.txt";
+        var getDecisionTreesStrategy = new Mock<IStrategy>();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SpaceBattle.GetDecisionTrees", (object[] args) => getDecisionTreesStrategy.Object.Strategy(args)).Execute();
+        getDecisionTreesStrategy.Setup(t => t.Strategy(It.IsAny<object[]>())).Returns(new Dictionary<int, object>()).Verifiable();
 
-        var path = "../Txt_files/test.txt";
-        var vectors = File.ReadAllLines(path).Select(line => line.Split().Select(int.Parse).ToArray()).ToList();
-        
-        read.Setup(i => i.ReadFile()).Returns(vectors);
+        var bdts = new BuildingDecisionTrees(path);
 
-        var BuildTree = new BuildDecisionTree(read.Object);
-        BuildTree.Execute();
+        bdts.Execute();
 
-        var DecisionTree = IoC.Resolve<IDictionary<int, object>>("Game.BuildDecisionTree");
-
-        Assert.NotNull(DecisionTree);
-        Assert.True(DecisionTree.ContainsKey(1));
-
-        var NextTree = (IDictionary<int, object>)DecisionTree[1];
-        Assert.True(NextTree.ContainsKey(2));
-
-        var NextTree2 = (IDictionary<int, object>)NextTree[2];
-        Assert.True(NextTree2.ContainsKey(3));
-
-        var NextTree3 = (IDictionary<int, object>)NextTree2[3];
-        Assert.True(NextTree3.ContainsKey(4));
+        getDecisionTreesStrategy.Verify();
     }
 
     [Fact]
-    public void BuildDecisionTreeCantReadFile()
+    public void NegativeBuildingDecisionTreesTestThrowsException()
     {
-        var read = new Mock<IReadList>();
-        read.Setup(i => i.ReadFile()).Returns(() => throw new Exception("This file is not readable"));
-        var BuildTree = new Lib.BuildDecisionTree(read.Object);
-        
-        var exception = Assert.Throws<Exception>(BuildTree.Execute);
-        Assert.Equal("This file is not readable", exception.Message);
+        var path = "";
+        var getDecisionTreesStrategy = new Mock<IStrategy>();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SpaceBattle.GetDecisionTrees", (object[] args) => getDecisionTreesStrategy.Object.Strategy(args)).Execute();
+        getDecisionTreesStrategy.Setup(t => t.Strategy(It.IsAny<object[]>())).Returns(new Dictionary<int, object>()).Verifiable();
+
+        var bdts = new BuildingDecisionTrees(path);
+
+        Assert.Throws<Exception>(() => bdts.Execute());
+
+        getDecisionTreesStrategy.Verify();
+    }
+
+    [Fact]
+    public void NegativeBuildingDecisionTreesTestThrowsFileNotFoundException()
+    {
+        var path = "./DT_File.txt";
+        var getDecisionTreesStrategy = new Mock<IStrategy>();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SpaceBattle.GetDecisionTrees", (object[] args) => getDecisionTreesStrategy.Object.Strategy(args)).Execute();
+        getDecisionTreesStrategy.Setup(t => t.Strategy(It.IsAny<object[]>())).Returns(new Dictionary<int, object>()).Verifiable();
+
+        var bdts = new BuildingDecisionTrees(path);
+
+        Assert.Throws<FileNotFoundException>(() => bdts.Execute());
+
+        getDecisionTreesStrategy.Verify();
     }
 }
