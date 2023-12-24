@@ -20,7 +20,7 @@ public class DecisionTreesTests
     [Fact]
     public void PositiveBuildingDecisionTreesTest()
     {
-        var path = "../test.txt";
+        var path = "test.txt";
         var getDecisionTreesStrategy = new Mock<IStrategy>();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SpaceBattle.GetDecisionTrees", (object[] args) => getDecisionTreesStrategy.Object.Strategy(args)).Execute();
         getDecisionTreesStrategy.Setup(t => t.Strategy(It.IsAny<object[]>())).Returns(new Dictionary<int, object>()).Verifiable();
