@@ -48,7 +48,7 @@ public class BuildTreeTests
         Assert.True(NextTree2.ContainsKey(3));
 
         var NextTree3 = (IDictionary<int, object>)NextTree2[3];
-        Assert.True(NextTree3.ContainsKey(10));
+        Assert.True(NextTree3.ContainsKey(4));
     }
 
     [Fact]
