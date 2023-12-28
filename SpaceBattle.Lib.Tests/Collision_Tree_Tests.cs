@@ -2,7 +2,6 @@
 using System.IO;
 using Hwdtech;
 using Hwdtech.Ioc;
-using Xunit;
 
 namespace SpaceBattle.Lib.Tests;
 using IDict = IDictionary<int, object>;
@@ -22,7 +21,7 @@ public class CollisionTreeCommandTest
 
     }
 
-    [Fact]
+    [Xunit.Fact]
     public void SuccessfullyBuildingCollisionTreeFromFileWithSomBranches()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
@@ -34,24 +33,24 @@ public class CollisionTreeCommandTest
 
         var resultingTree = IoC.Resolve<IDict>("Game.CollisionTree");
 
-        Assert.Equal(2, resultingTree.Count);
-        Assert.Equal(2, ((IDict)resultingTree[1]).Count);
-        Assert.Equal(2, ((IDict)((IDict)resultingTree[1])[2]).Count);
-        Assert.Equal(1, ((IDict)((IDict)((IDict)resultingTree[1])[3])[7]).Count);
+        Xunit.Assert.Equal(2, resultingTree.Count);
+        Xunit.Assert.Equal(2, ((IDict)resultingTree[1]).Count);
+        Xunit.Assert.Equal(2, ((IDict)((IDict)resultingTree[1])[2]).Count);
+        Xunit.Assert.Equal(1, ((IDict)((IDict)((IDict)resultingTree[1])[3])[7]).Count);
 
-        Assert.True(resultingTree.ContainsKey(1));
-        Assert.True(((IDict)resultingTree[1]).ContainsKey(2));
-        Assert.True(((IDict)((IDict)resultingTree[1])[3]).ContainsKey(7));
-        Assert.True(((IDict)((IDict)((IDict)resultingTree[1])[3])[7]).ContainsKey(5));
+        Xunit.Assert.True(resultingTree.ContainsKey(1));
+        Xunit.Assert.True(((IDict)resultingTree[1]).ContainsKey(2));
+        Xunit.Assert.True(((IDict)((IDict)resultingTree[1])[3]).ContainsKey(7));
+        Xunit.Assert.True(((IDict)((IDict)((IDict)resultingTree[1])[3])[7]).ContainsKey(5));
     }
 
-    [Fact]
+    [Xunit.Fact]
     public void IncorrectFilePathInputThrowExceptionWhenBuildingTree()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
 
         var build = new BuildCollisionTreeCommand("text.txt");
 
-        Assert.Throws<FileNotFoundException>(build.Execute);
+        Xunit.Assert.Throws<FileNotFoundException>(build.Execute);
     }
 }
