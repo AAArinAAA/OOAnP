@@ -12,7 +12,7 @@ public class MacroCommandTest
     public MacroCommandTest()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
-        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>( "Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
 
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Command.CreateMacroCommand", (object[] args) =>
         {
@@ -20,7 +20,7 @@ public class MacroCommandTest
             return new MacroCommand(commands);
         }).Execute();
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Strategy.MacroCommand", (object[] args) =>            
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Strategy.MacroCommand", (object[] args) =>
         {
             var nameOp = (string)args[0];
             var uObj = (IUObject)args[1];
@@ -32,7 +32,7 @@ public class MacroCommandTest
     public void SuccessfulExampleOfCreatingAndRunningMacroCommand()
     {
         var nameOperation = "MovementAndRotationOperation";
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Component" + nameOperation, (object[] args) => 
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Component" + nameOperation, (object[] args) =>
         new string[] { "Game.Command.CreateMoveCommand", "Game.Command.CreateTurnCommand" }).Execute();
 
         var obj = new Mock<IUObject>();
