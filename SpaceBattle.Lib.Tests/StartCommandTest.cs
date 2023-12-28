@@ -6,7 +6,7 @@ using Moq;
 
 namespace SpaceBattle.Lib.Tests;
 
-public class ActionCommand : Lib.ICommand
+public class ActionCommand : ICommand
 {
     private readonly Action _action;
     public ActionCommand(Action action)
@@ -41,10 +41,10 @@ public class StartMoveCommandTests
     [Fact]
     public void Positive_Test()
     {
-        var movingCommandMock = new Mock<Lib.ICommand>();
-        var commandMock = new Mock<Lib.ICommand>();
+        var movingCommandMock = new Mock<ICommand>();
+        var commandMock = new Mock<ICommand>();
         var queueMock = new Mock<IQueue>();
-        var injMock = new Mock<Lib.ICommand>();
+        var injMock = new Mock<ICommand>();
 
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Operation.Move", (object[] args) => movingCommandMock.Object).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "command", (object[] args) => commandMock.Object).Execute();
@@ -54,6 +54,6 @@ public class StartMoveCommandTests
         _startMoveCommand.Execute();
 
         _moveCommandStartableMock.Verify(m => m.property, Times.Once());
-        queueMock.Verify(q => q.Enqueue(It.IsAny<Lib.ICommand>()), Times.Once());
+        queueMock.Verify(q => q.Enqueue(It.IsAny<ICommand>()), Times.Once());
     }
 }
