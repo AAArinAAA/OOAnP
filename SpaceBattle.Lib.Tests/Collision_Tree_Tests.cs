@@ -1,64 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using Hwdtech;
 using Hwdtech.Ioc;
-using Moq;
 using Xunit;
 
-namespace SpaceBattle.Test;
+namespace SpaceBattle.Lib.Tests;
+using IDict = IDictionary<int, object>;
 
-public class DecisionTreesTests
+public class CollisionTreeCommandTest
 {
-
-    public DecisionTreesTests()
+    public CollisionTreeCommandTest()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
+
+        var tree = new Dictionary<int, object>();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.CollisionTree", (object[] args) => tree).Execute();
+
+        var treeBuilder = new TreeBuilder();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.CollisionTree.Build", (object[] args) => treeBuilder).Execute();
+
     }
 
     [Fact]
-    public void PositiveBuildingDecisionTreesTest()
+    public void SuccessfullyBuildingCollisionTreeFromFileWithSomBranches()
     {
         var path = "../../../test.txt";
-        var getDecisionTreesStrategy = new Mock<IStrategy>();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SpaceBattle.GetDecisionTrees", (object[] args) => getDecisionTreesStrategy.Object.Strategy(args)).Execute();
-        getDecisionTreesStrategy.Setup(t => t.Strategy(It.IsAny<object[]>())).Returns(new Dictionary<int, object>()).Verifiable();
+        var buildtree = new BuildCollisionTreeCommand(path);
 
-        var bdts = new BuildingDecisionTrees(path);
+        buildtree.Execute();
 
-        bdts.Execute();
+        var resultingTree = IoC.Resolve<IDict>("Game.CollisionTree");
 
-        getDecisionTreesStrategy.Verify();
+        Assert.Equal(2, resultingTree.Count);
+        Assert.Equal(2, ((IDict)resultingTree[1]).Count);
+        Assert.Equal(2, ((IDict)((IDict)resultingTree[1])[2]).Count);
+        Assert.Equal(1, ((IDict)((IDict)((IDict)resultingTree[1])[3])[7]).Count);
+
+        Assert.True(resultingTree.ContainsKey(1));
+        Assert.True(((IDict)resultingTree[1]).ContainsKey(2));
+        Assert.True(((IDict)((IDict)resultingTree[1])[3]).ContainsKey(7));
+        Assert.True(((IDict)((IDict)((IDict)resultingTree[1])[3])[7]).ContainsKey(5));
     }
 
     [Fact]
-    public void NegativeBuildingDecisionTreesTestThrowsException()
+    public void IncorrectFilePathInputThrowExceptionWhenBuildingTree()
     {
-        var path = "";
-        var getDecisionTreesStrategy = new Mock<IStrategy>();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SpaceBattle.GetDecisionTrees", (object[] args) => getDecisionTreesStrategy.Object.Strategy(args)).Execute();
-        getDecisionTreesStrategy.Setup(t => t.Strategy(It.IsAny<object[]>())).Returns(new Dictionary<int, object>()).Verifiable();
+        var build = new BuildCollisionTreeCommand("text.txt");
 
-        var bdts = new BuildingDecisionTrees(path);
-
-        Assert.Throws<Exception>(() => bdts.Execute());
-
-        getDecisionTreesStrategy.Verify();
-    }
-
-    [Fact]
-    public void NegativeBuildingDecisionTreesTestThrowsFileNotFoundException()
-    {
-        var path = "./DT_File.txt";
-        var getDecisionTreesStrategy = new Mock<IStrategy>();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SpaceBattle.GetDecisionTrees", (object[] args) => getDecisionTreesStrategy.Object.Strategy(args)).Execute();
-        getDecisionTreesStrategy.Setup(t => t.Strategy(It.IsAny<object[]>())).Returns(new Dictionary<int, object>()).Verifiable();
-
-        var bdts = new BuildingDecisionTrees(path);
-
-        Assert.Throws<FileNotFoundException>(() => bdts.Execute());
-
-        getDecisionTreesStrategy.Verify();
+        Assert.Throws<FileNotFoundException>(build.Execute);
     }
 }
