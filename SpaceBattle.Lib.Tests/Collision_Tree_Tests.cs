@@ -18,7 +18,7 @@ public class CollisionTreeCommandTest
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.CollisionTree", (object[] args) => tree).Execute();
 
         var treeBuilder = new TreeBuilder();
-        IoC.Resolve<Hwdtech.ICommand>( "IoC.Register", "Game.CollisionTree.Build", (object[] args) => treeBuilder).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.CollisionTree.Build", (object[] args) => treeBuilder).Execute();
 
     }
 
