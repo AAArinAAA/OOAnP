@@ -46,10 +46,10 @@ public class StartMoveCommandTests
         var queueMock = new Mock<IQueue>();
         var injMock = new Mock<ICommand>();
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Operation.Move", (object[] args) => movingCommandMock.Object).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "command", (object[] args) => commandMock.Object).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Commands.Move", (object[] args) => movingCommandMock.Object).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Сommand", (object[] args) => commandMock.Object).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Queue", (object[] args) => queueMock.Object).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Commands.Injectable", (object[] args) => injMock.Object).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Commands.Injectable", (object[] args) => injMock.Object).Execute();
 
         _startMoveCommand.Execute();
 
