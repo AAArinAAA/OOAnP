@@ -13,5 +13,4 @@
     <PackageReference Include="Hwdtech.Ioc.SingleThreadScope" Version="1.0.0" />
   </ItemGroup>
 
-
 </Project>
