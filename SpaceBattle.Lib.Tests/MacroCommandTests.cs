@@ -12,13 +12,7 @@ public class MacroCommandTest
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
-
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Command.CreateMacroCommand", (object[] args) =>
-        {
-            var commands = (IEnumerable<ICommand>)args[0];
-            return new MacroCommand(commands);
-        }).Execute();
-
+        
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Strategy.MacroCommand", (object[] args) =>
         {
             var nameOp = (string)args[0];
