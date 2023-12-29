@@ -32,7 +32,7 @@ public class MacroCommandTest
     {
         var nameOperation = "MovementAndRotationOperation";
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Component" + nameOperation, (object[] args) =>
-        new string[] { "Game.Operation.Move"}).Execute();
+        new string[] { "Game.Operation.Move" }).Execute();
 
         var obj = new Mock<IUObject>();
 
