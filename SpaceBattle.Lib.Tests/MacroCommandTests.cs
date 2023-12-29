@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Hwdtech;
 using Hwdtech.Ioc;
 using Moq;
-using Xunit;
 
 namespace SpaceBattle.Lib.Tests;
 
@@ -33,24 +32,19 @@ public class MacroCommandTest
     {
         var nameOperation = "MovementAndRotationOperation";
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Component" + nameOperation, (object[] args) =>
-        new string[] { "Game.Command.CreateMoveCommand", "Game.Command.CreateTurnCommand" }).Execute();
+        new string[] { "Game.Operation.Move"}).Execute();
 
         var obj = new Mock<IUObject>();
 
         var moveCommand = new Mock<ICommand>();
         moveCommand.Setup(x => x.Execute()).Verifiable();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Command.CreateMoveCommand", (object[] args) => moveCommand.Object).Execute();
-
-        var turnCommand = new Mock<ICommand>();
-        turnCommand.Setup(x => x.Execute()).Verifiable();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Command.CreateTurnCommand", (object[] args) => turnCommand.Object).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Operation.Move", (object[] args) => moveCommand.Object).Execute();
 
         var macroCommand = IoC.Resolve<ICommand>("Game.Strategy.MacroCommand", nameOperation, obj.Object);
 
         macroCommand.Execute();
 
         moveCommand.Verify(x => x.Execute(), Times.Once);
-        turnCommand.Verify(x => x.Execute(), Times.Once);
     }
 
     [Fact]
