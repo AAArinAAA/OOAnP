@@ -41,7 +41,7 @@ public class StartMoveCommandTests
     [Fact]
     public void Positive_Test()
     {
-        var movingCommandMock = new Mock<ICommand>();
+        var movingCommandMock = new Mock<Hwdtech.ICommand>();
         var commandMock = new Mock<ICommand>();
         var queueMock = new Mock<IQueue>();
         var injMock = new Mock<ICommand>();
