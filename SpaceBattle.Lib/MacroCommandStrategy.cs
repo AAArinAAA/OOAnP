@@ -14,15 +14,14 @@ public class MacroCommandStrategy : IStrategy
         var nameOperation = (string)args[0];
         var obj = (IUObject)args[1];
 
-        var dependencies = IoC.Resolve<string[]>("Component" + nameOperation);
-        var commands = dependencies.Select(dependency => IoC.Resolve<ICommand>(dependency, obj));
+        var dependencies = IoC.Resolve<IList<string>>("Component" + nameOperation);
+        IList<ICommand> list = new List<ICommand>();
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Command.CreateMacroCommand", (object[] args) =>
+        foreach (var d in dependencies)
         {
-            var commands = (IEnumerable<ICommand>)args[0];
-            return new MacroCommand(commands);
-        }).Execute();
+            list.Add(IoC.Resolve<ICommand>(d, obj));
+        }
 
-        return IoC.Resolve<ICommand>("Game.Command.CreateMacroCommand", commands);
+        return new MacroCommand(list);
     }
 }
