@@ -10,26 +10,28 @@ public class ServerThread
     public void ServerThreadthread(BlockingCollection<ICommand> q)
     {
         _q = q;
-        _behaviour = ()=>
-        { 
-        while (!_stop)
+        _behaviour = () =>
         {
-            var cmd = q.Take();
-            try 
+            while (!_stop)
             {
-                cmd.Execute();
+                var cmd = q.Take();
+                try
+                {
+                    cmd.Execute();
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Поймал ошибку!");
+                }
             }
-            catch (Exception)
-            {
-                Console.WriteLine("Поймал ошибку!");
-            }
-        }};
-        _thread = new Thread(()=>
-        { 
-        while (!_stop)
+        };
+        _thread = new Thread(() =>
         {
-            _behaviour();
-        }});
+            while (!_stop)
+            {
+                _behaviour();
+            }
+        });
     }
 
     public void Start()

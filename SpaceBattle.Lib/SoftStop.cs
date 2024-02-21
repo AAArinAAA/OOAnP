@@ -1,10 +1,10 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Hwdtech;
 
 namespace SpaceBattle.Lib;
 
 public class SoftStop : ICommand
-{    
+{
     private readonly BlockingCollection<ICommand> _queue;
     private readonly ServerThread _thread;
     public SoftStop(ServerThread thread, BlockingCollection<ICommand> queue)
