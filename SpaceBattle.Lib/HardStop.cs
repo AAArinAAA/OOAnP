@@ -12,8 +12,7 @@ public class HardStop : ICommand
 
     public void Execute()
     {
-        var id = IoC.Resolve<int>("Get ID", _thread);
-        var stop_cmd = IoC.Resolve<ICommand>("CreateHardStopCommand", id);
-        IoC.Resolve<ICommand>("HardStop", id, stop_cmd).Execute();
+       Thread.CurrentThread.
+
     }
 }

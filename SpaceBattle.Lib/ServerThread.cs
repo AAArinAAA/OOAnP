@@ -1,13 +1,15 @@
 ﻿using System.Collections.Concurrent;
+using Hwdtech;
 
 namespace SpaceBattle.Lib;
 public class ServerThread
 {
-    public required BlockingCollection<ICommand> _q;
-    private bool _stop;
-    public required Thread _thread;
+    public BlockingCollection<ICommand> _q;
+    private bool _stop = false;
+    public Thread _thread;
     private Action? _behaviour;
-    public void ServerThreadthread(BlockingCollection<ICommand> q)
+
+    public ServerThread(BlockingCollection<ICommand> q)
     {
         _q = q;
         _behaviour = () =>
@@ -19,19 +21,13 @@ public class ServerThread
                 {
                     cmd.Execute();
                 }
-                catch (Exception)
+                catch (Exception _)
                 {
-                    Console.WriteLine("Поймал ошибку!");
+                    IoC.Resolve<ICommand>("ExceptionHandler", cmd, _);
                 }
             }
         };
-        _thread = new Thread(() =>
-        {
-            while (!_stop)
-            {
-                _behaviour();
-            }
-        });
+        _thread = new Thread(() => _behaviour());
     }
 
     public void Start()
@@ -48,7 +44,4 @@ public class ServerThread
     {
         _behaviour = NewBehaviour;
     }
-    // запуск энпоинта
-    // определение кол-ва потоков
-
 }
