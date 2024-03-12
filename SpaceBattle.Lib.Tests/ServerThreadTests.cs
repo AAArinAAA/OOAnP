@@ -72,13 +72,13 @@ public ServerThreadTests()
 
         q.Add(IoC.Resolve<ICommand>("HardStopCommand"));
 
-
         q.Add(command.Object);
         
         st.Start();
+        
         Assert.True(mre.WaitOne(1000));
 
-        Assert.Single(q);
-        command.Verify(m=> m.Execute(), Times.Once);
+        Assert.Empty(q);
+        command.Verify(m=> m.Execute(), Times.AtLeast(2));
     }
 }

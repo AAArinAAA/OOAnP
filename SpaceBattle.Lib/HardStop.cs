@@ -1,6 +1,4 @@
-﻿using Hwdtech;
-
-namespace SpaceBattle.Lib;
+﻿namespace SpaceBattle.Lib;
 
 public class HardStop : ICommand
 {
@@ -12,7 +10,6 @@ public class HardStop : ICommand
 
     public void Execute()
     {
-       Thread.CurrentThread.
-
+        _thread.Stop();
     }
 }
