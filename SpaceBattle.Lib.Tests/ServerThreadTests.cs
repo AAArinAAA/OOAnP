@@ -62,13 +62,10 @@ public class ServerThreadTests
         q.Add(command.Object);
         var mre = new ManualResetEvent(false);
 
-        IoC.Resolve<Hwdtech.ICommand>(
-            "IoC.Register",
-            "HardStopCommand",
-            (object[] args) => new ActionCommand(() => { mre.Set(); })
-        ).Execute();
-
-        q.Add(IoC.Resolve<ICommand>("HardStopCommand"));
+        var hs = IoC.Resolve<ICommand>("HardStop",
+            st, () => { mre.Set(); });
+        q.Add(hs);
+        //q.Add(IoC.Resolve<ICommand>("HardStop", st, () => {new HardStop(st).Execute();}));
 
         q.Add(command.Object);
 
@@ -76,7 +73,7 @@ public class ServerThreadTests
 
         Assert.True(mre.WaitOne(1000));
 
-        Assert.Empty(q);
-        command.Verify(m => m.Execute(), Times.AtLeast(2));
+        Assert.Single(q);
+        command.Verify(m => m.Execute(), Times.Once());
     }
 }
