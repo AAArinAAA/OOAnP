@@ -7,26 +7,41 @@ public class SoftStop : ICommand
 {
     private readonly BlockingCollection<ICommand> _queue;
     private readonly ServerThread _thread;
-    public SoftStop(ServerThread thread, BlockingCollection<ICommand> queue)
+    public Action action = () => { };
+    public SoftStop(ServerThread thread, BlockingCollection<ICommand> queue,  Action action)
     {
         _thread = thread;
         _queue = queue;
+        this.action = action;
     }
 
-    public void Execute()
+     public void Execute()
     {
-        _thread.UpdateBehaviour(() =>
+        if (_thread.Equals(Thread.CurrentThread))
         {
-            if (_queue.TryTake(out var cmd) == true)
+            _thread.UpdateBehaviour(() =>
             {
-                _queue.Take().Execute();
-            }
-            else
-            {
-                var id = IoC.Resolve<int>("Get ID", _thread);
-                var stop_cmd = IoC.Resolve<ICommand>("CreateHardStopCommand", id);
-                IoC.Resolve<ICommand>("HardStop", id, stop_cmd).Execute();
-            }
-        });
+                if (_queue.TryTake(out var command) == true)
+                {
+                    try
+                    {
+                        _queue.Take().Execute();
+                    }
+                    catch (Exception e)
+                    {
+                        IoC.Resolve<ICommand>("ExceptionHandler.Handle", _queue.Take(), e).Execute();
+                    }
+                }
+                else
+                {
+                    action();
+                    _thread.Stop();
+                }
+            });
+        }
+        else
+        {
+            throw new Exception("Wrong Thread");
+        }
     }
 }
