@@ -2,7 +2,9 @@ name: Main
 
 on:
   push:
-    branches: ['Lab**']
+    branches: 
+      - 'Lab**'
+      - 'lab**'
   
   pull_request:
     branches: ['main']
