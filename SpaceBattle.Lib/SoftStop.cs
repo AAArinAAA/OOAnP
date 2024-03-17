@@ -8,14 +8,14 @@ public class SoftStop : ICommand
     private readonly BlockingCollection<ICommand> _queue;
     private readonly ServerThread _thread;
     public Action action = () => { };
-    public SoftStop(ServerThread thread, BlockingCollection<ICommand> queue,  Action action)
+    public SoftStop(ServerThread thread, BlockingCollection<ICommand> queue, Action action)
     {
         _thread = thread;
         _queue = queue;
         this.action = action;
     }
 
-     public void Execute()
+    public void Execute()
     {
         if (_thread.Equals(Thread.CurrentThread))
         {

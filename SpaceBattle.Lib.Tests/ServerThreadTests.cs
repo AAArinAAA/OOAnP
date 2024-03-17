@@ -103,7 +103,7 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        new SoftStop(idDict[(int)args[0]],  (BlockingCollection<ICommand>)args[2], (Action)args[1]).Execute();
+                        new SoftStop(idDict[(int)args[0]], (BlockingCollection<ICommand>)args[2], (Action)args[1]).Execute();
                     }
                 );
             }
@@ -117,7 +117,7 @@ public class ServerTheardTests
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
 
         var q = new BlockingCollection<ICommand>(10);
-        var st = new ServerThread(q,  IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
 
         IoC.Resolve<ICommand>("Add Command To QueueDict", 1, q).Execute();
         IoC.Resolve<ICommand>("Create and Start Thread", 1, st).Execute();
@@ -146,7 +146,7 @@ public class ServerTheardTests
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
 
         var q = new BlockingCollection<ICommand>(10);
-        var st = new ServerThread(q,  IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
 
         IoC.Resolve<ICommand>("Add Command To QueueDict", 2, q).Execute();
         IoC.Resolve<ICommand>("Create and Start Thread", 2, st).Execute();
@@ -199,7 +199,7 @@ public class ServerTheardTests
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => cmd.Object).Execute();
 
         var q = new BlockingCollection<ICommand>(10);
-        var st = new ServerThread(q,  IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
 
         IoC.Resolve<ICommand>("Add Command To QueueDict", 4, q).Execute();
         IoC.Resolve<ICommand>("Create and Start Thread", 4, st).Execute();
