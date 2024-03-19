@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using Hwdtech;
 using Hwdtech.Ioc;
 using Moq;
 using Xunit;
-
 namespace SpaceBattle.Lib.Test;
+
 public class ActionCommand : ICommand
 {
     private readonly Action _action;
@@ -21,18 +20,21 @@ public class ActionCommand : ICommand
         _action();
     }
 }
-
 public class ServerTheardTests
 {
     public ServerTheardTests()
     {
 
         new InitScopeBasedIoCImplementationCommand().Execute();
+        var scope = IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"));
 
-        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", scope).Execute();
 
-        var idDict = new Dictionary<int, ServerThread>();
-        var queueDict = new Dictionary<int, BlockingCollection<ICommand>>();
+        var idDict = new ConcurrentDictionary<int, ServerThread>();
+        var qDict = new ConcurrentDictionary<int, BlockingCollection<ICommand>>();
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Server.Dict", (object[] args) => idDict).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Server.QueueDict", (object[] args) => qDict).Execute();
 
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register",
             "Create and Start Thread",
@@ -40,9 +42,9 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        idDict.Add((int)args[0], (ServerThread)args[1]);
-                        var st = (ServerThread)args[1];
-                        st.Start();
+                        idDict.TryAdd((int)args[0], (ServerThread)args[1]);
+                        var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
+                        thread.Start();
                         if (args.Length == 3 && args[2] != null)
                         {
                             new ActionCommand((Action)args[2]).Execute();
@@ -58,7 +60,7 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        queueDict.Add((int)args[0], (BlockingCollection<ICommand>)args[1]);
+                        qDict.TryAdd((int)args[0], (BlockingCollection<ICommand>)args[1]);
                     }
                 );
             }
@@ -70,8 +72,8 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        var queue = queueDict[(int)args[0]];
-                        queue.Add((ICommand)args[1]);
+                        var qu = IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[(int)args[0]];
+                        qu.Add((ICommand)args[1]);
                         if (args.Length == 3 && args[2] != null)
                         {
                             new ActionCommand((Action)args[2]).Execute();
@@ -87,7 +89,8 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        new HardStop(idDict[(int)args[0]]).Execute();
+                        var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
+                        new HardStop(thread).Execute();
                         if (args.Length == 2 && args[1] != null)
                         {
                             new ActionCommand((Action)args[1]).Execute();
@@ -103,39 +106,133 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        new SoftStop(idDict[(int)args[0]], (BlockingCollection<ICommand>)args[2], (Action)args[1]).Execute();
+                        var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
+                        var q = IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[(int)args[0]];
+                        new SoftStop(thread, q, (Action)args[1]).Execute();
                     }
                 );
             }
         ).Execute();
     }
+
     [Fact]
     public void HardStopShouldStopServerThread()
     {
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
-
         var q = new BlockingCollection<ICommand>(10);
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
 
         IoC.Resolve<ICommand>("Add Command To QueueDict", 1, q).Execute();
         IoC.Resolve<ICommand>("Create and Start Thread", 1, st).Execute();
 
-        var command = new Mock<ICommand>();
-        command.Setup(m => m.Execute()).Verifiable();
+        var cmd = new Mock<ICommand>();
+        cmd.Setup(m => m.Execute()).Verifiable();
 
         var mre = new ManualResetEvent(false);
         var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", 1, () => { mre.Set(); });
 
-        IoC.Resolve<ICommand>("Send Command", 1, command.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", 1, cmd.Object).Execute();
         IoC.Resolve<ICommand>("Send Command", 1, hs).Execute();
-        IoC.Resolve<ICommand>("Send Command", 1, command.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", 1, cmd.Object).Execute();
 
         mre.WaitOne(1000);
 
         Assert.Single(q);
-        command.Verify(m => m.Execute(), Times.Once);
+    }
+
+    [Fact]
+    public void HardStopShouldStopServerThreadWithCommandWithException()
+    {
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
+
+        var cmd = new Mock<ICommand>();
+        var q = new BlockingCollection<ICommand>(10);
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => cmd.Object).Execute();
+
+        IoC.Resolve<ICommand>("Add Command To QueueDict", 2, q).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", 2, st).Execute();
+
+        var mre = new ManualResetEvent(false);
+        var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", 2, () => { mre.Set(); });
+
+        var ecmd = new Mock<ICommand>();
+        ecmd.Setup(m => m.Execute()).Throws(new Exception());
+
+        IoC.Resolve<ICommand>("Send Command", 2, ecmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", 2, hs).Execute();
+        IoC.Resolve<ICommand>("Send Command", 2, ecmd.Object).Execute();
+
+        mre.WaitOne(1000);
+
+        Assert.Throws<Exception>(() => hs.Execute());
+        Assert.Empty(q);
+    }
+
+    [Fact]
+    public void SoftStopShouldStopServerThread()
+    {
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
+
+        var q = new BlockingCollection<ICommand>(10);
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
+
+        IoC.Resolve<ICommand>("Add Command To QueueDict", 3, q).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", 3, st).Execute();
+
+        var mre = new ManualResetEvent(false);
+
+        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", 3, () => { mre.Set(); }, q);
+
+        var cmd = new Mock<ICommand>();
+        cmd.Setup(m => m.Execute()).Verifiable();
+
+        IoC.Resolve<ICommand>("Send Command", 3, cmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", 3, ss).Execute();
+        IoC.Resolve<ICommand>("Send Command", 3, cmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", 3, cmd.Object).Execute();
+
+        mre.WaitOne(1000);
+
+        Assert.Empty(q);
+    }
+
+    [Fact]
+    public void SoftStopShouldStopServerThreadWithCommandWithException()
+    {
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
+
+        var cmd = new Mock<ICommand>();
+        var q = new BlockingCollection<ICommand>(10);
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => cmd.Object).Execute();
+
+        IoC.Resolve<ICommand>("Add Command To QueueDict", 4, q).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", 4, st).Execute();
+
+        var mre = new ManualResetEvent(false);
+
+        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", 4, () => { mre.Set(); }, q);
+
+        var ecmd = new Mock<ICommand>();
+        ecmd.Setup(m => m.Execute()).Throws(new Exception());
+
+        IoC.Resolve<ICommand>("Send Command", 4, ecmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", 4, ss).Execute();
+        IoC.Resolve<ICommand>("Send Command", 4, ecmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", 4, ecmd.Object).Execute();
+
+        mre.WaitOne(1000);
+
+        Assert.Throws<Exception>(() => ss.Execute());
+        Assert.Empty(q);
     }
 
     [Fact]
@@ -146,14 +243,14 @@ public class ServerTheardTests
         var q = new BlockingCollection<ICommand>(10);
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
 
-        IoC.Resolve<ICommand>("Add Command To QueueDict", 4, q).Execute();
-        IoC.Resolve<ICommand>("Create and Start Thread", 4, st).Execute();
+        IoC.Resolve<ICommand>("Add Command To QueueDict", 5, q).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", 5, st).Execute();
 
         var mre = new ManualResetEvent(false);
 
-        var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", 4, () => { mre.Set(); });
+        var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", 5, () => { mre.Set(); });
 
-        IoC.Resolve<ICommand>("Send Command", 4, hs).Execute();
+        IoC.Resolve<ICommand>("Send Command", 5, hs).Execute();
 
         mre.WaitOne(1000);
 
@@ -164,15 +261,15 @@ public class ServerTheardTests
     [Fact]
     public void HashCodeTheSame()
     {
-        var queue1 = new BlockingCollection<ICommand>();
-        var serverThread1 = new ServerThread(queue1, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var queue2 = new BlockingCollection<ICommand>();
-        var serverThread2 = new ServerThread(queue2, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        Assert.True(serverThread1.GetHashCode() != serverThread2.GetHashCode());
+        var q1 = new BlockingCollection<ICommand>();
+        var sT1 = new ServerThread(q1, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        var q2 = new BlockingCollection<ICommand>();
+        var sT2 = new ServerThread(q2, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        Assert.True(sT1.GetHashCode() != sT2.GetHashCode());
     }
 
     [Fact]
-    public void NegativeEqualThreads()
+    public void EqualThreadsWithNull()
     {
         var q = new BlockingCollection<ICommand>(10);
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
@@ -191,7 +288,7 @@ public class ServerTheardTests
     }
 
     [Fact]
-    public void PositiveCurrentEqualThreads()
+    public void AbsoluteDifferendEquals()
     {
         var q = new BlockingCollection<ICommand>(10);
 

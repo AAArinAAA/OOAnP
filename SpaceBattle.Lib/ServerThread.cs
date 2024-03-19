@@ -17,14 +17,13 @@ public class ServerThread
         _queue = queue;
         _behavior = () =>
         {
-            var cmd = _queue.Take();
             try
             {
-                cmd.Execute();
+                _queue.Take().Execute();
             }
             catch (Exception e)
             {
-                IoC.Resolve<ICommand>("ExceptionHandler.Handle", cmd, e).Execute();
+                IoC.Resolve<ICommand>("ExceptionHandler.Handle", _queue.Take(), e).Execute();
             }
         };
         _thread = new Thread(() =>
