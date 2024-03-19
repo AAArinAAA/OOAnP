@@ -170,7 +170,7 @@ public class ServerTheardTests
         mre.WaitOne(1000);
 
         Assert.Throws<Exception>(() => hs.Execute());
-        Assert.Empty(q);
+        Assert.Single(q);
     }
 
     [Fact]
