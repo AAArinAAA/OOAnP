@@ -29,6 +29,9 @@ public class StartMoveCommandTests
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
 
+        var scope = IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"));
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", scope).Execute();
+
         _moveCommandStartableMock = new Mock<IMoveCommandStartable>();
         _uObjectMock = new Mock<IUObject>();
 
@@ -41,6 +44,7 @@ public class StartMoveCommandTests
     [Fact]
     public void Positive_Test()
     {
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
         var movingCommandMock = new Mock<ICommand>();
         var commandMock = new Mock<ICommand>();
         var queueMock = new Mock<IQueue>();
