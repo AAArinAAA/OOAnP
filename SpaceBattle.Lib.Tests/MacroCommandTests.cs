@@ -25,7 +25,7 @@ public class MacroCommandTest
     public void SuccessfulExampleOfCreatingAndRunningMacroCommand()
     {
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
-        
+
         var nameOperation = "MovementAndRotationOperation";
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Component" + nameOperation, (object[] args) =>
         new string[] { "Game.Operation.Move" }).Execute();
