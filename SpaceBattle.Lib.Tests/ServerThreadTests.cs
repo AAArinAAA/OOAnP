@@ -6,19 +6,6 @@ using Hwdtech.Ioc;
 using Moq;
 namespace SpaceBattle.Lib.Test;
 
-public class ActionCommand : ICommand
-{
-    private readonly Action _action;
-    public ActionCommand(Action action)
-    {
-        _action = action;
-    }
-
-    public void Execute()
-    {
-        _action();
-    }
-}
 public class ServerTheardTests
 {
     public ServerTheardTests()
