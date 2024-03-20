@@ -143,7 +143,7 @@ public class ServerTheardTests
     }
 
     [Xunit.Fact]
-    public void HardStopShouldStopServerThreadWithExceptionCommand()
+    public void HardStopShouldStopServerThreadWithCommandWithException()
     {
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
 
@@ -173,7 +173,7 @@ public class ServerTheardTests
     }
 
     [Xunit.Fact]
-    public void HardStopShouldNotStopServerBecauseOfWrongThread()
+    public void HardStopCanNotStopServerBecauseOfWrongThread()
     {
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
 
@@ -226,7 +226,7 @@ public class ServerTheardTests
     }
 
     [Xunit.Fact]
-    public void SoftStopShouldStopServerThreadWithExceptionCommand()
+    public void SoftStopShouldStopServerThreadWithCommandWithException()
     {
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
 
@@ -268,6 +268,14 @@ public class ServerTheardTests
     }
 
     [Xunit.Fact]
+    public void EqualThreadsWithNull()
+    {
+        var q = new BlockingCollection<ICommand>(10);
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        Xunit.Assert.False(st.Equals(null));
+    }
+
+    [Xunit.Fact]
     public void PositiveEqualThreads()
     {
         var q1 = new BlockingCollection<ICommand>(10);
@@ -279,20 +287,12 @@ public class ServerTheardTests
     }
 
     [Xunit.Fact]
-    public void EqualThreadsWithNull()
-    {
-        var q = new BlockingCollection<ICommand>(10);
-        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        Xunit.Assert.False(st.Equals(null));
-    }
-
-    [Xunit.Fact]
-    public void AbsoluteDifferentEquals()
+    public void AbsoluteDifferendEquals()
     {
         var q = new BlockingCollection<ICommand>(10);
 
         var st1 = new ServerThread(q, Thread.CurrentThread);
-        var not_st = 2345679;
+        var not_st = 15;
 
         Xunit.Assert.False(st1.Equals(not_st));
     }
