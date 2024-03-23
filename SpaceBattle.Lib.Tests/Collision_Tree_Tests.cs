@@ -24,7 +24,7 @@ public class CollisionTreeCommandTest
     [Xunit.Fact]
     public void SuccessfullyBuildingCollisionTreeFromFileWithSomBranches()
     {
-        new InitScopeBasedIoCImplementationCommand().Execute();
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
 
         var path = "../../../test.txt";
         var buildtree = new BuildCollisionTreeCommand(path);
