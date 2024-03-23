@@ -30,10 +30,10 @@ public class ServerTheardTests
                     {
                         var q = new BlockingCollection<ICommand>(10);
                         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-                        idDict.TryAdd((int)args[0],st);
+                        idDict.TryAdd((int)args[0], st);
                         qDict.TryAdd((int)args[0], q);
                         var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
-                        
+
                         st.Start();
                         if (args.Length == 2 && args[1] != null)
                         {
@@ -186,7 +186,7 @@ public class ServerTheardTests
 
         var mre = new ManualResetEvent(false);
 
-        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", 3, () => { mre.Set(); }, 
+        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", 3, () => { mre.Set(); },
             IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[3]);
 
         var cmd = new Mock<ICommand>();
@@ -215,7 +215,7 @@ public class ServerTheardTests
 
         var mre = new ManualResetEvent(false);
 
-        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", 4, () => { mre.Set(); }, 
+        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", 4, () => { mre.Set(); },
             IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[4]);
 
         var ecmd = new Mock<ICommand>();
