@@ -2,7 +2,9 @@ name: Main
 
 on:
   push:
-    branches: ['Lab**']
+    branches: 
+      - 'Lab**'
+      - 'lab**'
   
   pull_request:
     branches: ['main']
@@ -18,7 +20,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 7.0.x
  
       - name: Restore dependencies
         run: dotnet restore
