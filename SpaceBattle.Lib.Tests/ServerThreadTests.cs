@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
+using Castle.Components.DictionaryAdapter.Xml;
 using Hwdtech;
 using Hwdtech.Ioc;
 using Moq;
@@ -27,19 +28,19 @@ public class ServerTheardTests
             (object[] args) =>
             {
                 return new ActionCommand(() =>
-                    {
-                        var q = new BlockingCollection<ICommand>(10);
-                        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-                        idDict.TryAdd((int)args[0], st);
-                        qDict.TryAdd((int)args[0], q);
-                        var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
+                {
+                    var q = new BlockingCollection<ICommand>(10);
+                    var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+                    idDict.TryAdd((int)args[0], st);
+                    qDict.TryAdd((int)args[0], q);
+                    var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
 
-                        st.Start();
-                        if (args.Length == 2 && args[1] != null)
-                        {
-                            new ActionCommand((Action)args[1]).Execute();
-                        }
+                    st.Start();
+                    if (args.Length == 2 && args[1] != null)
+                    {
+                        new ActionCommand((Action)args[1]).Execute();
                     }
+                }
                 );
             }
         ).Execute();
@@ -49,9 +50,9 @@ public class ServerTheardTests
             (object[] args) =>
             {
                 return new ActionCommand(() =>
-                    {
-                        qDict.TryAdd((int)args[0], (BlockingCollection<ICommand>)args[1]);
-                    }
+                {
+                    qDict.TryAdd((int)args[0], (BlockingCollection<ICommand>)args[1]);
+                }
                 );
             }
         ).Execute();
@@ -61,14 +62,14 @@ public class ServerTheardTests
             (object[] args) =>
             {
                 return new ActionCommand(() =>
+                {
+                    var qu = IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[(int)args[0]];
+                    qu.Add((ICommand)args[1]);
+                    if (args.Length == 3 && args[2] != null)
                     {
-                        var qu = IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[(int)args[0]];
-                        qu.Add((ICommand)args[1]);
-                        if (args.Length == 3 && args[2] != null)
-                        {
-                            new ActionCommand((Action)args[2]).Execute();
-                        }
+                        new ActionCommand((Action)args[2]).Execute();
                     }
+                }
                 );
             }
         ).Execute();
@@ -78,14 +79,14 @@ public class ServerTheardTests
             (object[] args) =>
             {
                 return new ActionCommand(() =>
+                {
+                    var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
+                    new HardStop(thread).Execute();
+                    if (args.Length == 2 && args[1] != null)
                     {
-                        var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
-                        new HardStop(thread).Execute();
-                        if (args.Length == 2 && args[1] != null)
-                        {
-                            new ActionCommand((Action)args[1]).Execute();
-                        }
+                        new ActionCommand((Action)args[1]).Execute();
                     }
+                }
                 );
             }
         ).Execute();
@@ -95,11 +96,11 @@ public class ServerTheardTests
             (object[] args) =>
             {
                 return new ActionCommand(() =>
-                    {
-                        var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
-                        var q = IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[(int)args[0]];
-                        new SoftStop(thread, q, (Action)args[1]).Execute();
-                    }
+                {
+                    var thread = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[(int)args[0]];
+                    var q = IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[(int)args[0]];
+                    new SoftStop(thread, q, (Action)args[1]).Execute();
+                }
                 );
             }
         ).Execute();
@@ -125,9 +126,10 @@ public class ServerTheardTests
         IoC.Resolve<ICommand>("Send Command", 1, cmd.Object).Execute();
 
         mre.WaitOne(1000);
-
+        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[1];
         Xunit.Assert.Single(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[1]);
         cmd.Verify(m => m.Execute(), Times.Once);
+        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]

@@ -74,4 +74,9 @@ public class ServerThread
     {
         return _thread.GetHashCode();
     }
+    
+    public bool Check()
+    {
+        return _thread.IsAlive;
+    }
 }
