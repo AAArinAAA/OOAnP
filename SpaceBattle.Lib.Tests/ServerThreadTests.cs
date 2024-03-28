@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Threading;
-using Castle.Components.DictionaryAdapter.Xml;
 using Hwdtech;
 using Hwdtech.Ioc;
 using Moq;
