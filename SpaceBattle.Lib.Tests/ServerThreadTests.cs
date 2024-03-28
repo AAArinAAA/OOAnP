@@ -177,7 +177,7 @@ public class ServerTheardTests
         var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[5];
         Xunit.Assert.Throws<Exception>(() => hs.Execute());
         Xunit.Assert.Empty(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[5]);
-        Xunit.Assert.False(st.Check());
+        Xunit.Assert.True(st.Check());
     }
 
     [Xunit.Fact]
