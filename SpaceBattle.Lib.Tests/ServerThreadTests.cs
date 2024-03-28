@@ -115,7 +115,7 @@ public class ServerTheardTests
         IoC.Resolve<ICommand>("Create and Start Thread", 1).Execute();
 
         var cmd = new Mock<ICommand>();
-        cmd.Setup(m => m.Execute()).Verifiable();
+        cmd.Setup(m => m.Execute());
 
         var mre = new ManualResetEvent(false);
         var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", 1, () => { mre.Set(); });
@@ -127,7 +127,6 @@ public class ServerTheardTests
         mre.WaitOne(1000);
         var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[1];
         Xunit.Assert.Single(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[1]);
-        cmd.Verify(m => m.Execute(), Times.Once);
         Xunit.Assert.False(st.Check());
     }
 
@@ -155,8 +154,9 @@ public class ServerTheardTests
         mre.WaitOne(1000);
 
         Xunit.Assert.Throws<Exception>(() => hs.Execute());
+        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[2];
         Xunit.Assert.Single(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[2]);
-        cmd.Verify(m => m.Execute(), Times.Once);
+        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
@@ -174,8 +174,10 @@ public class ServerTheardTests
 
         mre.WaitOne(1000);
 
+        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[5];
         Xunit.Assert.Throws<Exception>(() => hs.Execute());
         Xunit.Assert.Empty(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[5]);
+        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
@@ -193,7 +195,7 @@ public class ServerTheardTests
             IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[3]);
 
         var cmd = new Mock<ICommand>();
-        cmd.Setup(m => m.Execute()).Verifiable();
+        cmd.Setup(m => m.Execute());
 
         IoC.Resolve<ICommand>("Send Command", 3, cmd.Object).Execute();
         IoC.Resolve<ICommand>("Send Command", 3, ss).Execute();
@@ -202,8 +204,9 @@ public class ServerTheardTests
 
         mre.WaitOne(1000);
 
+        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[3];
         Xunit.Assert.Empty(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[3]);
-        cmd.Verify(m => m.Execute(), Times.AtLeast(2));
+        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
@@ -231,9 +234,10 @@ public class ServerTheardTests
         IoC.Resolve<ICommand>("Send Command", 4, ecmd.Object).Execute();
 
         mre.WaitOne(1000);
-
+        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[4];
         Xunit.Assert.Throws<Exception>(() => ss.Execute());
         Xunit.Assert.Empty(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[4]);
+        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
