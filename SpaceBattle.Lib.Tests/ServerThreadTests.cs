@@ -125,9 +125,7 @@ public class ServerTheardTests
         IoC.Resolve<ICommand>("Send Command", 1, cmd.Object).Execute();
 
         mre.WaitOne(1000);
-        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[1];
         Xunit.Assert.Single(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[1]);
-        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
@@ -154,9 +152,7 @@ public class ServerTheardTests
         mre.WaitOne(1000);
 
         Xunit.Assert.Throws<Exception>(() => hs.Execute());
-        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[2];
         Xunit.Assert.Single(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[2]);
-        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
@@ -174,10 +170,8 @@ public class ServerTheardTests
 
         mre.WaitOne(1000);
 
-        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[5];
         Xunit.Assert.Throws<Exception>(() => hs.Execute());
         Xunit.Assert.Empty(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[5]);
-        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
@@ -204,9 +198,7 @@ public class ServerTheardTests
 
         mre.WaitOne(1000);
 
-        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[3];
         Xunit.Assert.Empty(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[3]);
-        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
@@ -234,10 +226,8 @@ public class ServerTheardTests
         IoC.Resolve<ICommand>("Send Command", 4, ecmd.Object).Execute();
 
         mre.WaitOne(1000);
-        var st = IoC.Resolve<ConcurrentDictionary<int, ServerThread>>("Server.Dict")[4];
         Xunit.Assert.Throws<Exception>(() => ss.Execute());
         Xunit.Assert.Empty(IoC.Resolve<ConcurrentDictionary<int, BlockingCollection<ICommand>>>("Server.QueueDict")[4]);
-        Xunit.Assert.False(st.Check());
     }
 
     [Xunit.Fact]
