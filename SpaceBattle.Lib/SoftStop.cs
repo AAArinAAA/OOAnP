@@ -29,6 +29,7 @@ public class SoftStop : ICommand
                         IoC.Resolve<ICommand>("ExceptionHandler.Handle", cmd, e).Execute();
                     }
                 }
+
                 _thread.Stop();
             });
         }
