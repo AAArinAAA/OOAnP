@@ -18,9 +18,8 @@ public class SoftStop : ICommand
         {
             _thread.UpdateBehaviour(() =>
             {
-                if (q.TryTake(out var command))
+                while (q.TryTake(out var cmd))
                 {
-                    var cmd = q.Take();
                     try
                     {
                         cmd.Execute();
@@ -30,10 +29,7 @@ public class SoftStop : ICommand
                         IoC.Resolve<ICommand>("ExceptionHandler.Handle", cmd, e).Execute();
                     }
                 }
-                else
-                {
-                    _thread.Stop();
-                }
+                _thread.Stop();
             });
         }
         else
