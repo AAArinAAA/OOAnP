@@ -211,6 +211,7 @@ public class ServerTheardTests
         var q = new BlockingCollection<ICommand>(10);
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
         var UUid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
+        
         var st2 = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
         var UUid2 = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st2);
 
