@@ -22,9 +22,9 @@ public class ServerTheardTests
             (object[] args) =>
             {
                 var threadHashtable = IoC.Resolve<Hashtable>("Get Hashtable");
-                var uniqueId = Guid.NewGuid();
-                threadHashtable.Add(uniqueId, (ServerThread)args[0]);
-                return (object)uniqueId;
+                var UUid = Guid.NewGuid();
+                threadHashtable.Add(UUid, (ServerThread)args[0]);
+                return (object)UUid;
             }
         ).Execute();
 
@@ -34,8 +34,8 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        var tab = IoC.Resolve<Hashtable>("Get Hashtable");
-                        var st = (ServerThread)tab[(Guid)args[0]]!;
+                        var hasht = IoC.Resolve<Hashtable>("Get Hashtable");
+                        var st = (ServerThread)hasht[(Guid)args[0]]!;
                         st?.Execute();
                         if (args.Length == 2 && args[1] != null)
                         {
@@ -52,10 +52,10 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        var tab = IoC.Resolve<Hashtable>("Get Hashtable");
-                        var st = (ServerThread)tab[(Guid)args[0]]!;
-                        var qu = st.GetQueue();
-                        qu.Add((ICommand)args[1]);
+                        var hasht = IoC.Resolve<Hashtable>("Get Hashtable");
+                        var st = (ServerThread)hasht[(Guid)args[0]]!;
+                        var q = st.GetQueue();
+                        q.Add((ICommand)args[1]);
                     }
                 );
             }
@@ -67,8 +67,8 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        var tab = IoC.Resolve<Hashtable>("Get Hashtable");
-                        var st = (ServerThread)tab[(Guid)args[0]]!;
+                        var hasht = IoC.Resolve<Hashtable>("Get Hashtable");
+                        var st = (ServerThread)hasht[(Guid)args[0]]!;
                         new HardStop(st).Execute();
                         if (args.Length == 2 && args[1] != null)
                         {
@@ -84,8 +84,8 @@ public class ServerTheardTests
             {
                 return new ActionCommand(() =>
                     {
-                        var tab = IoC.Resolve<Hashtable>("Get Hashtable");
-                        var st = (ServerThread)tab[(Guid)args[0]]!;
+                        var hasht = IoC.Resolve<Hashtable>("Get Hashtable");
+                        var st = (ServerThread)hasht[(Guid)args[0]]!;
                         new SoftStop(st, (Action)args[1]).Execute();
                     }
                 );
@@ -103,25 +103,25 @@ public class ServerTheardTests
         var q = new BlockingCollection<ICommand>(10);
 
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var uuid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
+        var UUid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
 
-        IoC.Resolve<ICommand>("Create and Start Thread", uuid).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", UUid).Execute();
 
         var mre = new ManualResetEvent(false);
 
-        var command = new Mock<ICommand>();
-        command.Setup(m => m.Execute());
+        var cmd = new Mock<ICommand>();
+        cmd.Setup(m => m.Execute());
         var threadStoped = false;
 
-        var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", uuid, () =>
+        var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", UUid, () =>
         {
             mre.Set();
             threadStoped = true;
         });
 
-        IoC.Resolve<ICommand>("Send Command", uuid, command.Object).Execute();
-        IoC.Resolve<ICommand>("Send Command", uuid, hs).Execute();
-        IoC.Resolve<ICommand>("Send Command", uuid, command.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, cmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, hs).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, cmd.Object).Execute();
 
         mre.WaitOne(1000);
         Assert.Single(q);
@@ -138,25 +138,25 @@ public class ServerTheardTests
         var q = new BlockingCollection<ICommand>(10);
 
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var uuid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
+        var UUid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
 
-        IoC.Resolve<ICommand>("Create and Start Thread", uuid).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", UUid).Execute();
 
         var mre = new ManualResetEvent(false);
         var threadStoped = false;
 
-        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", uuid, () =>
+        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", UUid, () =>
         {
             mre.Set();
             threadStoped = true;
         });
 
-        var command = new Mock<ICommand>();
-        command.Setup(m => m.Execute());
+        var cmd = new Mock<ICommand>();
+        cmd.Setup(m => m.Execute());
 
-        IoC.Resolve<ICommand>("Send Command", uuid, command.Object).Execute();
-        IoC.Resolve<ICommand>("Send Command", uuid, ss).Execute();
-        IoC.Resolve<ICommand>("Send Command", uuid, command.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, cmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, ss).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, cmd.Object).Execute();
 
         mre.WaitOne(1000);
         Assert.Empty(q);
@@ -175,30 +175,30 @@ public class ServerTheardTests
         var q = new BlockingCollection<ICommand>(10);
 
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var uuid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
+        var UUid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
 
         var st2 = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var uuid2 = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st2);
+        var UUid2 = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st2);
 
-        IoC.Resolve<ICommand>("Create and Start Thread", uuid).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", UUid).Execute();
 
         var mre = new ManualResetEvent(false);
 
         var threadStoped = false;
 
-        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", uuid, () =>
+        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", UUid, () =>
         {
             mre.Set();
             threadStoped = true;
         });
 
-        var ecommand = new Mock<ICommand>();
-        ecommand.Setup(m => m.Execute()).Throws(new Exception());
+        var ecmd = new Mock<ICommand>();
+        ecmd.Setup(m => m.Execute()).Throws(new Exception());
 
-        IoC.Resolve<ICommand>("Send Command", uuid, ecommand.Object).Execute();
-        IoC.Resolve<ICommand>("Send Command", uuid, ss).Execute();
-        IoC.Resolve<ICommand>("Send Command", uuid, ecommand.Object).Execute();
-        IoC.Resolve<ICommand>("Send Command", uuid2, ecommand.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, ecmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, ss).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid, ecmd.Object).Execute();
+        IoC.Resolve<ICommand>("Send Command", UUid2, ecmd.Object).Execute();
 
         mre.WaitOne(1000);
 
@@ -214,14 +214,14 @@ public class ServerTheardTests
 
         var q = new BlockingCollection<ICommand>(10);
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var uuid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
+        var UUid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
         var st2 = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var uuid2 = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st2);
+        var UUid2 = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st2);
 
-        IoC.Resolve<ICommand>("Create and Start Thread", uuid).Execute();
+        IoC.Resolve<ICommand>("Create and Start Thread", UUid).Execute();
 
-        var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", uuid, () => { });
-        IoC.Resolve<ICommand>("Send Command", uuid2, hs).Execute();
+        var hs = IoC.Resolve<ICommand>("Hard Stop The Thread", UUid, () => { });
+        IoC.Resolve<ICommand>("Send Command", UUid2, hs).Execute();
 
         Assert.Throws<Exception>(() => hs.Execute());
     }
