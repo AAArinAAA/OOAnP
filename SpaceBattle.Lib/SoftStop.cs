@@ -5,7 +5,7 @@ namespace SpaceBattle.Lib;
 
 public class SoftStop : ICommand
 {
-    private readonly ServerThread _thread; 
+    private readonly ServerThread _thread;
     public Action action = () => { };
 
     public SoftStop(ServerThread thread, Action action)

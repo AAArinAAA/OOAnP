@@ -137,7 +137,6 @@ public class ServerTheardTests
         Assert.True(threadStoped);
     }
 
-
     [Xunit.Fact]
     public void HardStopCanNotStopServerBecauseOfWrongThread()
     {
