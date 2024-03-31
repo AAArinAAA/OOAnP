@@ -177,9 +177,6 @@ public class ServerTheardTests
         var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
         var UUid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
 
-        var st2 = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
-        var UUid2 = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st2);
-
         IoC.Resolve<ICommand>("Create and Start Thread", UUid).Execute();
 
         var mre = new ManualResetEvent(false);
@@ -198,7 +195,6 @@ public class ServerTheardTests
         IoC.Resolve<ICommand>("Send Command", UUid, ecmd.Object).Execute();
         IoC.Resolve<ICommand>("Send Command", UUid, ss).Execute();
         IoC.Resolve<ICommand>("Send Command", UUid, ecmd.Object).Execute();
-        IoC.Resolve<ICommand>("Send Command", UUid2, ecmd.Object).Execute();
 
         mre.WaitOne(1000);
 
