@@ -1,27 +1,24 @@
-﻿using System.Collections.Concurrent;
-using Hwdtech;
+﻿using Hwdtech;
 
 namespace SpaceBattle.Lib;
-
 public class SoftStop : ICommand
 {
-    private readonly ServerThread _thread;
+    public ServerThread thread;
     public Action action = () => { };
 
     public SoftStop(ServerThread thread, Action action)
     {
-        _thread = thread;
+        this.thread = thread;
         this.action = action;
     }
-
     public void Execute()
     {
-        var q = IoC.Resolve<BlockingCollection<ICommand>>("Get BlockingQ");
-        if (_thread.Equals(Thread.CurrentThread))
+        var queue = thread.GetQueue();
+        if (thread.Equals(Thread.CurrentThread))
         {
-            _thread.UpdateBehaviour(() =>
+            thread.UpdateBehavior(() =>
             {
-                while (q.TryTake(out var cmd))
+                while (queue.TryTake(out var cmd))
                 {
                     try
                     {
@@ -33,7 +30,7 @@ public class SoftStop : ICommand
                     }
                 }
 
-                _thread.Stop();
+                thread.Stop();
                 action();
             });
         }

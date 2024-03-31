@@ -1,18 +1,16 @@
 ﻿namespace SpaceBattle.Lib;
-
 public class HardStop : ICommand
 {
-    private readonly ServerThread _thread;
+    private readonly ServerThread thread;
     public HardStop(ServerThread thread)
     {
-        _thread = thread;
+        this.thread = thread;
     }
-
     public void Execute()
     {
-        if (_thread.Equals(Thread.CurrentThread))
+        if (thread.Equals(Thread.CurrentThread))
         {
-            _thread.Stop();
+            thread.Stop();
         }
         else
         {

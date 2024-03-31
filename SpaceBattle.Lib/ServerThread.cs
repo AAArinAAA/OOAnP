@@ -37,8 +37,7 @@ public class ServerThread
             }
         });
     }
-
-    public void Start()
+    public void Execute()
     {
         _thread.Start();
     }
@@ -46,9 +45,13 @@ public class ServerThread
     {
         _stop = true;
     }
-    public void UpdateBehaviour(Action newBehavior)
+    public void UpdateBehavior(Action newBehavior)
     {
         _behavior = newBehavior;
+    }
+    public BlockingCollection<ICommand> GetQueue()
+    {
+        return _queue;
     }
     public override bool Equals(object? obj)
     {
@@ -73,10 +76,5 @@ public class ServerThread
     public override int GetHashCode()
     {
         return _thread.GetHashCode();
-    }
-
-    public BlockingCollection<ICommand> GetQueue()
-    {
-        return _queue;
     }
 }
