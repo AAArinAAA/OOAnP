@@ -223,6 +223,25 @@ public class ServerTheardTests
     }
 
     [Fact]
+    public void SoftStopCanNotStopServerBecauseOfWrongThread()
+    {
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
+
+        var q = new BlockingCollection<ICommand>(10);
+        var st = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        var UUid = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st);
+        var st2 = new ServerThread(q, IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current")));
+        var UUid2 = IoC.Resolve<Guid>("Add Thread To Hashtable And Get UUid", st2);
+
+        IoC.Resolve<ICommand>("Create and Start Thread", UUid).Execute();
+
+        var ss = IoC.Resolve<ICommand>("Soft Stop The Thread", UUid, () => { });
+        IoC.Resolve<ICommand>("Send Command", UUid2, ss).Execute();
+
+        Assert.Throws<Exception>(() => ss.Execute());
+    }
+
+    [Fact]
     public void HashCodeTheSame()
     {
         var queue1 = new BlockingCollection<ICommand>();
