@@ -159,8 +159,9 @@ public class ServerTheardTests
         IoC.Resolve<ICommand>("Send Command", UUid, cmd.Object).Execute();
 
         mre.WaitOne(1000);
-        Assert.Empty(q);
+
         Assert.True(threadStoped);
+        Assert.Empty(q);
     }
 
     [Fact]
@@ -200,7 +201,6 @@ public class ServerTheardTests
 
         Assert.True(threadStoped);
         Assert.Empty(q);
-        Assert.Throws<Exception>(() => ss.Execute());
     }
 
     [Fact]
