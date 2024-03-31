@@ -5,10 +5,13 @@ namespace SpaceBattle.Lib;
 
 public class SoftStop : ICommand
 {
-    private readonly ServerThread _thread;
-    public SoftStop(ServerThread thread)
+    private readonly ServerThread _thread; 
+    public Action action = () => { };
+
+    public SoftStop(ServerThread thread, Action action)
     {
         _thread = thread;
+        this.action = action;
     }
 
     public void Execute()
@@ -31,6 +34,7 @@ public class SoftStop : ICommand
                 }
 
                 _thread.Stop();
+                action();
             });
         }
         else

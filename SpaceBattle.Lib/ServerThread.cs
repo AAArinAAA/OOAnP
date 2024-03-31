@@ -74,4 +74,9 @@ public class ServerThread
     {
         return _thread.GetHashCode();
     }
+
+    public BlockingCollection<ICommand> GetQueue()
+    {
+        return _queue;
+    }
 }
