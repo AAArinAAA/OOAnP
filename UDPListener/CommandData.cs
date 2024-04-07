@@ -1,4 +1,4 @@
-namespace Udp;
+﻿namespace Udp;
 
 public class CommandData
 {

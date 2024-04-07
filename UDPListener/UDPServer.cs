@@ -47,11 +47,11 @@ public class UDPServer
     public static void TableOfThreadsAndQueues()
     {
         var gameToThread = new Dictionary<string, string>();
-        var threadToQueue = new Dictionary<string, BlockingCollection<_ICommand.ICommand>>();
+        var threadToQueue = new Dictionary<string, BlockingCollection<ICommand>>();
         IoC.Resolve<ICommand>("IoC.Register", "Get GameToThreadDict", (object[] args) => gameToThread).Execute();
         IoC.Resolve<ICommand>("IoC.Register", "Get ThreadToQueueDict", (object[] args) => threadToQueue).Execute();
 
         gameToThread.Add("asdfg", "thefirst");
-        threadToQueue.Add("thefirst", new BlockingCollection<_ICommand.ICommand>());
+        threadToQueue.Add("thefirst", new BlockingCollection<ICommand>());
     }
 }

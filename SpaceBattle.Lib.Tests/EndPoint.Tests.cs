@@ -1,4 +1,6 @@
+﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using Hwdtech;
@@ -21,8 +23,8 @@ public class EndPointTests
         {
             var dictthread = IoC.Resolve<Dictionary<string, string>>("Get GameToThreadDict"); // ???????? проблема с int должно быть string
             var threadId = dictthread[(string)args[0]];
-            var dictqu = IoC.Resolve<Dictionary<string, BlockingCollection<_ICommand.ICommand>>>("Get ThreadToQueueDict");
-            dictqu[(string)threadId].Add((_ICommand.ICommand)args[1]);
+            var dictqu = IoC.Resolve<Dictionary<string, BlockingCollection<ICommand>>>("Get ThreadToQueueDict");
+            dictqu[(string)threadId].Add((ICommand)args[1]);
             return dictqu[(string)threadId];
         }).Execute();
 
@@ -55,5 +57,6 @@ public class EndPointTests
         };
         var s = JsonConvert.SerializeObject(message, Formatting.Indented);
         _ = client.Send(Encoding.UTF8.GetBytes(s));
+
     }
 }
