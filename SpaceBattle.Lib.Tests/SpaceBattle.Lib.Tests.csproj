@@ -27,7 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SpaceBattle.Lib\SpaceBattle.Lib.csproj" />
+    <ProjectReference Include="..\UDPListener\UDPListener.csproj" />
   </ItemGroup>
   
 </Project>
-

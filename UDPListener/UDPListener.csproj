@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hwdtech.Core" Version="1.0.0" />
+    <PackageReference Include="Hwdtech.IoC" Version="1.0.0" />
+    <PackageReference Include="Hwdtech.Ioc.ScopeBasedIoCImplementation" Version="1.0.0" />
+    <PackageReference Include="Hwdtech.Ioc.SingleThreadScope" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Udp.NET.Server" Version="7.0.9" />
+  </ItemGroup>
+
+</Project>
