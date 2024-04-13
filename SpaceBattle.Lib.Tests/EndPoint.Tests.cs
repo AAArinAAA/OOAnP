@@ -43,7 +43,7 @@ public class EndPointTests
         IoC.Resolve<ICommand>("IoC.Register", "Send Message",
         (object[] args) =>
         {
-            var dictthread = IoC.Resolve<Dictionary<string, string>>("Get GameToThreadDict"); // ???????? проблема с int должно быть string
+            var dictthread = IoC.Resolve<Dictionary<string, string>>("Get GameToThreadDict");
             var threadId = dictthread[(string)args[0]];
             var dictqu = IoC.Resolve<Dictionary<string, BlockingCollection<ICommand>>>("Get ThreadToQueueDict");
             var commanddd = (CommandData)args[1];
