@@ -1,19 +1,17 @@
-﻿using System.Net;
+﻿using System.Collections.Concurrent;
 using System.Text;
 using Hwdtech;
 using Newtonsoft.Json;
 
 namespace Udp;
-public class EndPoint : IPEndPoint
+public class EndPoint
 {
-    public EndPoint(IPAddress address, int port) : base(address, port)
-    {
-
-    }
     public static void GetMessage(byte[] sendbuf)
     {
         var message = JsonConvert.DeserializeObject<CommandData>(Encoding.ASCII.GetString(sendbuf, 0, sendbuf.Length));
 
-        IoC.Resolve<ICommand>("Send Message", message!.gameId!, message).Execute();
+        var q = IoC.Resolve<BlockingCollection<ICommand>>("Send Message", message!.gameId!, message);
+
+        IoC.Resolve<ICommand>("IoC.Register", "Get Queue", (object[] args) => q).Execute();
     }
 }

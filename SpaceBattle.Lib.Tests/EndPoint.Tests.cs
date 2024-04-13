@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 using Hwdtech;
@@ -10,6 +8,22 @@ using Udp;
 
 namespace SpaceBattle.Test;
 
+using System;
+using System.Collections.Generic;
+using Xunit;
+public class ActionCommand : ICommand
+{
+    private readonly Action _action;
+    public ActionCommand(Action action)
+    {
+        _action = action;
+    }
+
+    public void Execute()
+    {
+        _action();
+    }
+}
 public class EndPointTests
 {
     public EndPointTests()
@@ -18,36 +32,36 @@ public class EndPointTests
 
         IoC.Resolve<ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
 
+        var dictOfCommands = new Dictionary<string, ICommand>();
+        var command = new ActionCommand(() => { });
+        dictOfCommands.Add("fire", command);
+        dictOfCommands.Add("start", command);
+        dictOfCommands.Add("stop", command);
+        dictOfCommands.Add("spin", command);
+        IoC.Resolve<ICommand>("IoC.Register", "Get CommandsDict", (object[] args) => dictOfCommands).Execute();
+
         IoC.Resolve<ICommand>("IoC.Register", "Send Message",
         (object[] args) =>
         {
             var dictthread = IoC.Resolve<Dictionary<string, string>>("Get GameToThreadDict"); // ???????? проблема с int должно быть string
             var threadId = dictthread[(string)args[0]];
             var dictqu = IoC.Resolve<Dictionary<string, BlockingCollection<ICommand>>>("Get ThreadToQueueDict");
-            dictqu[(string)threadId].Add((ICommand)args[1]);
+            var commanddd = (CommandData)args[1];
+            var command = commanddd.CommandType;
+            dictqu[(string)threadId].Add(IoC.Resolve<Dictionary<string, ICommand>>("Get CommandsDict")[command!]);
             return dictqu[(string)threadId];
         }).Execute();
 
     }
 
     [Fact]
-    public void Test()
+    public void MessageWasRecivedAndAddedToNessesaryQueue()
     {
         IoC.Resolve<ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
-        var PORT = 8080;
-
-        var server = new UDPServer();
-        server.Initialize();
-        server.StartMessageLoop();
-        Console.WriteLine("Server listening!");
 
         UDPServer.TableOfThreadsAndQueues();
 
-        var client = new UDPClient();
-        client.Initialize(IPAddress.Loopback, PORT);
-        client.StartMessageLoop();
-
-        Console.WriteLine("Client sending!");
+        var broadcast = IPAddress.Parse("192.168.1.33");
 
         var message = new CommandData
         {
@@ -56,7 +70,16 @@ public class EndPointTests
             gameItemId = "548",
         };
         var s = JsonConvert.SerializeObject(message, Formatting.Indented);
-        _ = client.Send(Encoding.UTF8.GetBytes(s));
 
+        var sendbuf = Encoding.ASCII.GetBytes(s);
+        var ep = new IPEndPoint(broadcast, 11000);
+        Udp.EndPoint.GetMessage(sendbuf);
+
+        UDPServer.StartListener(sendbuf, ep);
+
+        Console.WriteLine("Message sent to the broadcast address");
+
+        var qu = IoC.Resolve<BlockingCollection<ICommand>>("Get Queue");
+        Assert.Single(qu);
     }
 }

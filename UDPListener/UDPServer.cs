@@ -1,49 +1,26 @@
 ﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using Hwdtech;
-
-namespace Udp;
 
 public class UDPServer
 {
-    private const int PORT = 8080;
+    private const int listenPort = 11000;
 
-    private Socket? _socket;
-    private IPEndPoint? _ep;
-
-    private byte[]? _buffer_recv;
-    private ArraySegment<byte> _buffer_recv_segment;
-
-    public void Initialize()
+    public static void StartListener(byte[] sendbuf, IPEndPoint ep)
     {
-        _buffer_recv = new byte[4096];
-        _buffer_recv_segment = new(_buffer_recv);
+        var listener = new UdpClient(listenPort);
 
-        _ep = new IPEndPoint(IPAddress.Any, PORT);
-
-        _socket = new(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        _socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.PacketInformation, true);
-        _socket.Bind(_ep);
-    }
-    public void StartMessageLoop()
-    {
-        _ = Task.Run(async () =>
+        while (true)
         {
-            SocketReceiveMessageFromResult res;
-            while (true)
-            {
-                res = await _socket!.ReceiveMessageFromAsync(_buffer_recv_segment, SocketFlags.None, _ep!);
-                await SendTo((EndPoint)res.RemoteEndPoint, Encoding.UTF8.GetBytes("Hello back!"));
-            }
-        });
+            listener.Send(sendbuf, sendbuf.Length, ep);
+
+            break;
+        }
+
+        listener.Close();
     }
-    public async Task SendTo(EndPoint recipient, byte[] data)
-    {
-        var s = new ArraySegment<byte>(data);
-        await _socket!.SendToAsync(s, SocketFlags.None, recipient);
-    }
+
     public static void TableOfThreadsAndQueues()
     {
         var gameToThread = new Dictionary<string, string>();
