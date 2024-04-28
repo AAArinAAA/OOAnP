@@ -1,5 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using Hwdtech;
 using Hwdtech.Ioc;
@@ -8,9 +10,6 @@ using Udp;
 
 namespace SpaceBattle.Test;
 
-using System;
-using System.Collections.Generic;
-using Xunit;
 public class ActionCommand : ICommand
 {
     private readonly Action _action;
@@ -24,31 +23,32 @@ public class ActionCommand : ICommand
         _action();
     }
 }
+
 public class EndPointTests
 {
     public EndPointTests()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
 
-        IoC.Resolve<ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
 
-        var dictOfCommands = new Dictionary<string, ICommand>();
+        var dictOfCommands = new ConcurrentDictionary<string, ICommand>();
         var command = new ActionCommand(() => { });
-        dictOfCommands.Add("fire", command);
-        dictOfCommands.Add("start", command);
-        dictOfCommands.Add("stop", command);
-        dictOfCommands.Add("spin", command);
-        IoC.Resolve<ICommand>("IoC.Register", "Get CommandsDict", (object[] args) => dictOfCommands).Execute();
+        dictOfCommands.TryAdd("fire", command);
+        dictOfCommands.TryAdd("start", command);
+        dictOfCommands.TryAdd("stop", command);
+        dictOfCommands.TryAdd("spin", command);
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Get CommandsDict", (object[] args) => dictOfCommands).Execute();
 
-        IoC.Resolve<ICommand>("IoC.Register", "Send Message",
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Send Message",
         (object[] args) =>
         {
-            var dictthread = IoC.Resolve<Dictionary<string, string>>("Get GameToThreadDict");
+            var dictthread = IoC.Resolve<ConcurrentDictionary<string, string>>("Get GameToThreadDict");
             var threadId = dictthread[(string)args[0]];
-            var dictqu = IoC.Resolve<Dictionary<string, BlockingCollection<ICommand>>>("Get ThreadToQueueDict");
+            var dictqu = IoC.Resolve<ConcurrentDictionary<string, BlockingCollection<ICommand>>>("Get ThreadToQueueDict");
             var commanddd = (CommandData)args[1];
             var command = commanddd.CommandType;
-            dictqu[(string)threadId].Add(IoC.Resolve<Dictionary<string, ICommand>>("Get CommandsDict")[command!]);
+            dictqu[(string)threadId].Add(IoC.Resolve<ConcurrentDictionary<string, ICommand>>("Get CommandsDict")[command!]);
             return dictqu[(string)threadId];
         }).Execute();
 
@@ -57,11 +57,14 @@ public class EndPointTests
     [Fact]
     public void MessageWasRecivedAndAddedToNessesaryQueue()
     {
-        IoC.Resolve<ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
+
+        var client = new UdpClient();
 
         UDPServer.TableOfThreadsAndQueues();
-
-        var broadcast = IPAddress.Parse("192.168.1.33");
+        var server = new UDPServer();
+        server.Main();
 
         var message = new CommandData
         {
@@ -70,16 +73,21 @@ public class EndPointTests
             gameItemId = "548",
         };
         var s = JsonConvert.SerializeObject(message, Formatting.Indented);
-
         var sendbuf = Encoding.ASCII.GetBytes(s);
-        var ep = new IPEndPoint(broadcast, 11000);
+
+        var ep = new IPEndPoint(IPAddress.Parse("192.168.1.33"), 11000);
+
+        client.Send(sendbuf, sendbuf.Length, ep);
+        var message2 = Encoding.ASCII.GetBytes("STOP");
+        client.Send(message2, message2.Length, ep);
+        server.Stop();
+
         Udp.EndPoint.GetMessage(sendbuf);
-
-        UDPServer.StartListener(sendbuf, ep);
-
-        Console.WriteLine("Message sent to the broadcast address");
+        client.Close();
 
         var qu = IoC.Resolve<BlockingCollection<ICommand>>("Get Queue");
         Assert.Single(qu);
+
+        Assert.True(server.alive());
     }
 }

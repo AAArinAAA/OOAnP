@@ -1,34 +1,68 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using Hwdtech;
 
 public class UDPServer
 {
     private const int listenPort = 11000;
+    private Thread? listenThread;
+    private bool running = true;
 
-    public static void StartListener(byte[] sendbuf, IPEndPoint ep)
+    private void StartListener()
     {
+        IoC.Resolve<ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
         var listener = new UdpClient(listenPort);
+        var groupEP = new IPEndPoint(IPAddress.Any, 0);
 
-        while (true)
+        listenThread = new Thread(() =>
         {
-            listener.Send(sendbuf, sendbuf.Length, ep);
+            try
+            {
+                var bytes = new byte[1024];
+                while (!bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")) && running)
+                {
+                    bytes = listener.Receive(ref groupEP);
+                }
+            }
+            catch (Exception e)
+            {
+                IoC.Resolve<ICommand>("ExceptionHandler.Handle", e).Execute();
+            }
+            finally
+            {
+                listener.Close();
+            }
+        });
 
-            break;
-        }
+        listenThread.Start();
+    }
 
-        listener.Close();
+    public void Main()
+    {
+        StartListener();
+    }
+    public void Stop()
+    {
+        listenThread!.Join(1000);
+        running = false;
+    }
+
+    public bool alive()
+    {
+        return listenThread!.IsAlive;
     }
 
     public static void TableOfThreadsAndQueues()
     {
-        var gameToThread = new Dictionary<string, string>();
-        var threadToQueue = new Dictionary<string, BlockingCollection<ICommand>>();
-        IoC.Resolve<ICommand>("IoC.Register", "Get GameToThreadDict", (object[] args) => gameToThread).Execute();
-        IoC.Resolve<ICommand>("IoC.Register", "Get ThreadToQueueDict", (object[] args) => threadToQueue).Execute();
+        var gameToThread = new ConcurrentDictionary<string, string>();
+        var threadToQueue = new ConcurrentDictionary<string, BlockingCollection<ICommand>>();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Get GameToThreadDict", (object[] args) => gameToThread).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Get ThreadToQueueDict", (object[] args) => threadToQueue).Execute();
 
-        gameToThread.Add("asdfg", "thefirst");
-        threadToQueue.Add("thefirst", new BlockingCollection<ICommand>());
+        gameToThread.TryAdd("asdfg", "thefirst");
+        threadToQueue.TryAdd("thefirst", new BlockingCollection<ICommand>());
     }
 }

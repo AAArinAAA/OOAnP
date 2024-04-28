@@ -12,6 +12,6 @@ public class EndPoint
 
         var q = IoC.Resolve<BlockingCollection<ICommand>>("Send Message", message!.gameId!, message);
 
-        IoC.Resolve<ICommand>("IoC.Register", "Get Queue", (object[] args) => q).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Get Queue", (object[] args) => q).Execute();
     }
 }
