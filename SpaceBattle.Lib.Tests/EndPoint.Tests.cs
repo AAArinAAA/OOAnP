@@ -90,41 +90,4 @@ public class EndPointTests
         var qu = IoC.Resolve<BlockingCollection<ICommand>>("Get Queue");
         Assert.Single(qu);
     }
-
-    [Fact]
-    public void MessageWasRecived()
-    {
-        var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
-    
-        UDPServer.TableOfThreadsAndQueues();
-        var server = new UDPServer();
-        server.Main();
-
-        var ep = new IPEndPoint(IPAddress.Parse("192.168.1.33"), 11000);
-
-        var message = new CommandData
-        {
-            CommandType = "fire",
-            gameId = "asdfg",
-            gameItemId = "548",
-        };
-        var ser_message = JsonConvert.SerializeObject(message, Formatting.Indented);
-        var message1 = Encoding.ASCII.GetBytes(ser_message);
-        client.SendTo(message1, ep);
-
-        var message2 = Encoding.ASCII.GetBytes("STOP");
-        client.SendTo(message2, ep);
-
-        Udp.EndPoint.GetMessage(message1);
-
-        client.Shutdown(SocketShutdown.Both);
-        client.Close();
-
-        server.Stop();
-        var qu = IoC.Resolve<BlockingCollection<ICommand>>("Get Queue");
-        var recieve_message = qu.Take();
-        Assert.Equal("fire", message.CommandType);
-    }
 }

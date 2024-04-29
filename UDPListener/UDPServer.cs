@@ -5,7 +5,7 @@ using Hwdtech;
 public class UDPServer
 {
     private Thread? listenThread;
-    private readonly Socket? _socket;
+    private Socket? _socket;
 
     private void StartListener()
     {
