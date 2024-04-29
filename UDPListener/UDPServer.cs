@@ -1,42 +1,38 @@
 ﻿using System.Collections.Concurrent;
-using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Hwdtech;
-
 public class UDPServer
 {
-    private const int listenPort = 11000;
     private Thread? listenThread;
-    private bool running = true;
+    private readonly Socket? _socket;
 
     private void StartListener()
     {
-        IoC.Resolve<ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
-        var listener = new UdpClient(listenPort);
-        var groupEP = new IPEndPoint(IPAddress.Any, 0);
+        var scope = IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"));
+        IoC.Resolve<ICommand>("Scopes.Current.Set", scope).Execute();
+        var _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
         listenThread = new Thread(() =>
         {
             try
             {
                 var bytes = new byte[1024];
-                while (!bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")) && running)
+                while (!bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")))
                 {
-                    bytes = listener.Receive(ref groupEP);
+                    _socket.Receive(bytes);
                 }
             }
-            catch (Exception e)
+            catch (SocketException e)
             {
-                IoC.Resolve<ICommand>("ExceptionHandler.Handle", e).Execute();
+                Console.WriteLine(e.Message);
             }
             finally
             {
-                listener.Close();
+                _socket.Shutdown(SocketShutdown.Receive);
             }
         });
-
-        listenThread.Start();
+        listenThread?.Start();
     }
 
     public void Main()
@@ -45,13 +41,7 @@ public class UDPServer
     }
     public void Stop()
     {
-        listenThread!.Join(1000);
-        running = false;
-    }
-
-    public bool alive()
-    {
-        return listenThread!.IsAlive;
+        _socket?.Close();
     }
 
     public static void TableOfThreadsAndQueues()

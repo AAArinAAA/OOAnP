@@ -8,6 +8,7 @@ public class EndPoint
 {
     public static void GetMessage(byte[] sendbuf)
     {
+        IoC.Resolve<ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
         var message = JsonConvert.DeserializeObject<CommandData>(Encoding.ASCII.GetString(sendbuf, 0, sendbuf.Length));
 
         var q = IoC.Resolve<BlockingCollection<ICommand>>("Send Message", message!.gameId!, message);
