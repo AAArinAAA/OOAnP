@@ -82,9 +82,8 @@ public class EndPointTests
         client.SendTo(message2, ep);
 
         Udp.EndPoint.GetMessage(sendbuf);
-        client.Shutdown(SocketShutdown.Both);
         client.Close();
-        
+
         server.Stop();
 
         var qu = IoC.Resolve<BlockingCollection<ICommand>>("Get Queue");
