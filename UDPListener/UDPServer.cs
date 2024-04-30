@@ -1,21 +1,19 @@
-﻿using System.Collections.Concurrent;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Json;
 using System.Text;
 using Hwdtech;
-using Newtonsoft.Json;
 
 namespace Udp;
-public class UDPServer
+public class EndPoint
 {
     private readonly Thread _listenThread;
     private Action _HookAfter = () => { };
-    private Action _HookBefore = () =>     {    };
+    private Action _HookBefore = () => { };
     private readonly int _listenPort;
-
     private bool running = true;
 
-    public UDPServer(int port)
+    public EndPoint(int port)
     {
         _listenPort = port;
         var listener = new UdpClient(_listenPort);
@@ -27,16 +25,27 @@ public class UDPServer
                 IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
 
                 _HookBefore();
-                //
+
                 var bytes = new byte[1024];
-                
+
                 while (!bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")) && running)
                 {
                     bytes = listener.Receive(ref RemoteIpEndPoint);
-                    //var message = JsonConvert.DeserializeObject<CommandData>(Encoding.ASCII.GetString(bytes, 0, bytes.Length));
-                    var cmd = IoC.Resolve<Hwdtech.ICommand>("InterpretCommand", bytes);
-                    //var threadID = IoC.Resolve<object>("Get Thread ID by Game ID",  message!.gameId!);
-                    //IoC.Resolve<ICommand>("Send Message", threadID, cmd).Execute();
+
+                    if (bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")))
+                    {
+                        break;
+                    }
+
+                    var jsonString = Encoding.UTF8.GetString(bytes);
+
+                    var serializer = new DataContractJsonSerializer(typeof(CommandData));
+                    var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(jsonString));
+                    var message = serializer.ReadObject(memoryStream) as CommandData;
+
+                    var cmd = IoC.Resolve<Hwdtech.ICommand>("InterpretCommand", message!);
+                    var threadID = IoC.Resolve<object>("Get Thread ID by Game ID", message!.gameId!);
+                    IoC.Resolve<ICommand>("Send Message", threadID, cmd).Execute();
                 }
             }
             catch (SocketException e)
@@ -67,22 +76,6 @@ public class UDPServer
     }
     public void Stop()
     {
-        running = false; 
+        running = false;
     }
-
-    public void Wait(int time)
-    {
-        _listenThread.Join(time);
-    }
-
-    // public static void TableOfThreadsAndQueues()
-    // {
-    //     var gameToThread = new ConcurrentDictionary<string, string>();
-    //     var threadToQueue = new ConcurrentDictionary<string, BlockingCollection<ICommand>>();
-    //     IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Get GameToThreadDict", (object[] args) => gameToThread).Execute();
-    //     IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Get ThreadToQueueDict", (object[] args) => threadToQueue).Execute();
-
-    //     gameToThread.TryAdd("asdfg", "thefirst");
-    //     threadToQueue.TryAdd("thefirst", new BlockingCollection<ICommand>());
-    // }
 }
