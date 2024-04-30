@@ -16,3 +16,5 @@ public class EndPoint
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Get Queue", (object[] args) => q).Execute();
     }
 }
+// десериализация сообщения, message обернуть в команду(мок<ICommand>) и закинуть в очередь потока по гейм айди (1 вариант)
+// а поток отправляет уже команду в очередь игры (2 вариант)

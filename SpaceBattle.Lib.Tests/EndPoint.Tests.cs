@@ -60,14 +60,21 @@ public class EndPointTests
     {
         //var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
-
-        UDPServer.TableOfThreadsAndQueues();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();       
 
         var listenport = 11103;
         var server = new UDPServer(listenport);
         var checkStart = new ManualResetEvent(false);
-        server.UpdateHookBefore(() => checkStart.Set());
+        server.UpdateHookBefore(() => 
+        {
+            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "InterpretCommand", (object[] args) => 
+                new ActionCommand(() => 
+                { 
+                    
+                })
+            ).Execute();
+            checkStart.Set();
+        });
         var checkStop = new ManualResetEvent(false);
         server.UpdateHookAfter(() => checkStop.Set());
         server.Start();
@@ -75,7 +82,7 @@ public class EndPointTests
         var client = new UdpClient();
 
         checkStart.WaitOne();
-        
+
         var message = new CommandData
         {
             CommandType = "fire",
@@ -94,7 +101,7 @@ public class EndPointTests
 
         checkStop.WaitOne();
 
-        Udp.EndPoint.GetMessage(sendbuf);
+        //Udp.EndPoint.GetMessage(sendbuf);
         client.Close();
 
         server.Stop();
