@@ -6,6 +6,15 @@ public class UDPServer
 {
     private Thread? listenThread;
     private readonly Socket? _socket;
+    private Action _HookAfter = () =>
+    {
+
+    };
+
+    public void UpdateHookAfter(Action NewHookAfter)
+    {
+        _HookAfter = NewHookAfter;
+    }
 
     private void StartListener()
     {
@@ -18,10 +27,12 @@ public class UDPServer
             try
             {
                 var bytes = new byte[1024];
+                //
                 while (!bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")))
                 {
                     _socket.Receive(bytes);
                 }
+                // 
             }
             catch (SocketException e)
             {
@@ -29,7 +40,7 @@ public class UDPServer
             }
             finally
             {
-                _socket.Shutdown(SocketShutdown.Receive);
+                _HookAfter();
             }
         });
         listenThread?.Start();
@@ -42,11 +53,7 @@ public class UDPServer
     public void Stop()
     {
         _socket?.Close();
-    }
-
-    public bool isAlive()
-    {
-        return listenThread!.IsAlive;
+        listenThread?.Interrupt();
     }
 
     public static void TableOfThreadsAndQueues()

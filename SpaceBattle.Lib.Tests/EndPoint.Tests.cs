@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using Hwdtech;
 using Hwdtech.Ioc;
 using Newtonsoft.Json;
@@ -64,6 +65,9 @@ public class EndPointTests
 
         UDPServer.TableOfThreadsAndQueues();
         var server = new UDPServer();
+        var mre = new ManualResetEvent(false);
+
+        server.UpdateHookAfter(() => mre.Set());
         server.Main();
 
         var message = new CommandData
@@ -82,6 +86,8 @@ public class EndPointTests
         var message2 = Encoding.ASCII.GetBytes("STOP");
         client.SendTo(message2, ep);
 
+        mre.WaitOne();
+
         Udp.EndPoint.GetMessage(sendbuf);
         client.Close();
 
@@ -89,7 +95,5 @@ public class EndPointTests
 
         var qu = IoC.Resolve<BlockingCollection<ICommand>>("Get Queue");
         Assert.Single(qu);
-
-        Assert.True(server.isAlive());
     }
 }
