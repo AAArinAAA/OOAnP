@@ -1,38 +1,38 @@
 ﻿using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using Hwdtech;
+
+namespace Udp;
 public class UDPServer
 {
-    private Thread? listenThread;
-    private readonly Socket? _socket;
-    private Action _HookAfter = () =>
+    private readonly Thread _listenThread;
+    //private readonly Socket? _socket;
+    private Action _HookAfter = () => { };
+    private Action _HookBefore = () => { };
+    private readonly int _listenPort;
+
+    private bool running = true;
+
+    public UDPServer(int port)
     {
-
-    };
-
-    public void UpdateHookAfter(Action NewHookAfter)
-    {
-        _HookAfter = NewHookAfter;
-    }
-
-    private void StartListener()
-    {
-        var scope = IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"));
-        IoC.Resolve<ICommand>("Scopes.Current.Set", scope).Execute();
-        var _socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
-        listenThread = new Thread(() =>
+        _listenPort = port;
+        var listener = new UdpClient(_listenPort);
+        var RemoteIpEndPoint = new IPEndPoint(IPAddress.Any, _listenPort);
+        _listenThread = new Thread(() =>
         {
             try
             {
+                IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
+
+                _HookBefore();
                 var bytes = new byte[1024];
-                //
-                while (!bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")))
+                
+                while (!bytes.SequenceEqual(Encoding.ASCII.GetBytes("STOP")) && running)
                 {
-                    _socket.Receive(bytes);
+                    bytes = listener.Receive(ref RemoteIpEndPoint);
                 }
-                // 
             }
             catch (SocketException e)
             {
@@ -40,20 +40,34 @@ public class UDPServer
             }
             finally
             {
+                listener.Close();
                 _HookAfter();
             }
         });
-        listenThread?.Start();
     }
 
-    public void Main()
+    public void Start()
     {
-        StartListener();
+        _listenThread.Start();
+    }
+
+    public void UpdateHookAfter(Action NewHookAfter)
+    {
+        _HookAfter = NewHookAfter;
+    }
+
+    public void UpdateHookBefore(Action NewHookBefore)
+    {
+        _HookBefore = NewHookBefore;
     }
     public void Stop()
     {
-        _socket?.Close();
-        listenThread?.Interrupt();
+        running = false; 
+    }
+
+    public void Wait(int time)
+    {
+        _listenThread.Join(time);
     }
 
     public static void TableOfThreadsAndQueues()

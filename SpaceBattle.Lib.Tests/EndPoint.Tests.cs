@@ -58,18 +58,24 @@ public class EndPointTests
     [Fact]
     public void MessageWasRecivedAndAddedToNessesaryQueue()
     {
-        var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-
+        //var client = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Current"))).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionHandler.Handle", (object[] args) => new ActionCommand(() => { })).Execute();
 
         UDPServer.TableOfThreadsAndQueues();
-        var server = new UDPServer();
-        var mre = new ManualResetEvent(false);
 
-        server.UpdateHookAfter(() => mre.Set());
-        server.Main();
+        var listenport = 11103;
+        var server = new UDPServer(listenport);
+        var checkStart = new ManualResetEvent(false);
+        server.UpdateHookBefore(() => checkStart.Set());
+        var checkStop = new ManualResetEvent(false);
+        server.UpdateHookAfter(() => checkStop.Set());
+        server.Start();
 
+        var client = new UdpClient();
+
+        checkStart.WaitOne();
+        
         var message = new CommandData
         {
             CommandType = "fire",
@@ -79,14 +85,14 @@ public class EndPointTests
         var s = JsonConvert.SerializeObject(message, Formatting.Indented);
         var sendbuf = Encoding.ASCII.GetBytes(s);
 
-        var ep = new IPEndPoint(IPAddress.Parse("192.168.1.33"), 11000);
+        var ep = new IPEndPoint(IPAddress.Parse("127.0.0.1"), listenport);
 
-        client.Connect(ep);
-        client.SendTo(sendbuf, ep);
+        // client.Connect(ep);
+        client.Send(sendbuf, sendbuf.Length, ep);
         var message2 = Encoding.ASCII.GetBytes("STOP");
-        client.SendTo(message2, ep);
+        client.Send(message2, message2.Length, ep);
 
-        mre.WaitOne();
+        checkStop.WaitOne();
 
         Udp.EndPoint.GetMessage(sendbuf);
         client.Close();
