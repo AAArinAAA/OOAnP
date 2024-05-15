@@ -1,7 +1,5 @@
-﻿namespace SpaceBattle
+﻿namespace SpaceBattle.Lib;
+public interface IStrategyRenamed
 {
-    public interface IStrategy
-    {
-        public object Strategy(params object[] args);
-    }
+    public object Strategy(params object[] args);
 }
