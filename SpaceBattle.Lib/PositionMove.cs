@@ -1,4 +1,4 @@
-using Hwdtech;
+﻿using Hwdtech;
 
 namespace SpaceBattle.Lib;
 
@@ -41,10 +41,10 @@ public class PosIterator : IEnumerator<object>
         {
             return true;
         }
-        else 
+        else
         {
             currentTeam++;
-            if (currentTeam < teams.Count) 
+            if (currentTeam < teams.Count)
             {
                 startingPoint += new Vector(outerSpace, 0);
                 counter = 1;

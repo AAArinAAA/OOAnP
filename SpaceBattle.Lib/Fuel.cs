@@ -1,4 +1,4 @@
-using Hwdtech;
+﻿using Hwdtech;
 
 namespace SpaceBattle.Lib;
 
@@ -16,5 +16,5 @@ public class Fuel : IEnumerator<object>
         return true;
     }
 
-    public void Reset(){}
+    public void Reset() { }
 }

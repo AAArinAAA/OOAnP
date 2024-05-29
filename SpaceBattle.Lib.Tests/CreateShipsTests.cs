@@ -1,8 +1,8 @@
-using Moq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Hwdtech;
 using Hwdtech.Ioc;
-using System.Collections.Generic;
-using System.Linq;
+using Moq;
 
 namespace SpaceBattle.Lib.Test;
 

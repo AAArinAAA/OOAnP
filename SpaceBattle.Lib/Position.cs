@@ -1,4 +1,4 @@
-namespace SpaceBattle.Lib;
+﻿namespace SpaceBattle.Lib;
 
 public class PosIterGetAndMove : IStrategyRenamed
 {
@@ -13,7 +13,7 @@ public class PosIterGetAndMove : IStrategyRenamed
     {
         var c = (Vector)poit.Current;
         var m = poit.MoveNext();
-        if (!m) 
+        if (!m)
         {
             poit.Reset();
         }

@@ -1,7 +1,7 @@
-using Moq;
+﻿using System.Collections.Generic;
 using Hwdtech;
 using Hwdtech.Ioc;
-using System.Collections.Generic;
+using Moq;
 
 namespace SpaceBattle.Lib.Test;
 
@@ -23,7 +23,7 @@ public class SetIniPosTests
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Services.GetStartingPoint", (object[] props) => (object)new Vector(1, 1)).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.UObject.Set", (object[] props) => mStrat.Object.Strategy(props)).Execute();
 
-        var poit = new PosIterator(new List<int>{3, 3}, 2, 4);
+        var poit = new PosIterator(new List<int> { 3, 3 }, 2, 4);
         var iterStrat = new PosIterGetAndMove(poit);
 
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.IniPosIter.Next", (object[] props) => iterStrat.Strategy()).Execute();
