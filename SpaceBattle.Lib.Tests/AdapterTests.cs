@@ -34,7 +34,7 @@ public class AdapterGeneratorTests
         public MovableAdapter(Vector target) => this.target = target; 
         public Vector Position {
                get { return IoC.Resolve<Vector>(""Game.Position.Get"", target); }
-               set { IoC.Resolve<_ICommand.ICommand>(""Game.Position.Set"", target, value).Execute(); }
+               set { IoC.Resolve<ICommand>(""Game.Position.Set"", target, value).Execute(); }
         }
         public Vector Velocity {
                get { return IoC.Resolve<Vector>(""Game.Velocity.Get"", target); }

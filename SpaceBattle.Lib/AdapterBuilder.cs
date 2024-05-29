@@ -30,7 +30,7 @@ public class AdapterBuilder
 
         if (p.CanWrite)
         {
-            set = $@"   set {{ IoC.Resolve<_ICommand.ICommand>(""Game.{p.Name}.Set"", target, value).Execute(); }}";
+            set = $@"   set {{ IoC.Resolve<ICommand>(""Game.{p.Name}.Set"", target, value).Execute(); }}";
         }
 
         properties +=
