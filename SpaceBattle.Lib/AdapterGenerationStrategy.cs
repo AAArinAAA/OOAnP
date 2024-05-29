@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 namespace SpaceBattle.Lib;
 
 public class AdapterCodeGeneratorStrategy : IStrategyRenamed
